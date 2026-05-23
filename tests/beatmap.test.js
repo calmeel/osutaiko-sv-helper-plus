@@ -523,6 +523,7 @@ describe('Beatmap Module Unit Test', () => {
 			const existingTimingPoint = new TimingPoint(startTime + 1, -50, 4, 2, 0, 75, 0, 0);
 
 			mockBeatmap.replaceTimingPoints(mockBeatmap.timingPoints.concat([ existingTimingPoint ]).sort((a, b) => a.time - b.time));
+			mockBeatmap.write();
 
 			mockBeatmapManipulater = new BeatmapManipulater(mockBeatmapPath);
 			mockBeatmapManipulater.overwrite(startTime, endTime, {
@@ -548,6 +549,47 @@ describe('Beatmap Module Unit Test', () => {
 
 			expect(inheritedTimingPointTimes).toContain(startTime);
 			expect(inheritedTimingPointTimes).not.toContain(startTime + 1);
+		});
+
+		test('Overwrite Removes All Inherited Timing Points In Range', () => {
+			const startTime = mockBeatmap.hitObjects[0].time;
+			const endTime = mockBeatmap.hitObjects[1].time;
+			const orphanInheritedTimingPoint = new TimingPoint(startTime + 10, -50, 4, 2, 0, 75, 0, 0);
+			const uninheritedTimingPoint = new TimingPoint(startTime + 20, 500, 4, 2, 0, 75, 1, 0);
+
+			mockBeatmap.replaceTimingPoints(mockBeatmap.timingPoints.concat([
+				orphanInheritedTimingPoint,
+				uninheritedTimingPoint
+			]).sort((a, b) => a.time - b.time));
+			mockBeatmap.write();
+
+			mockBeatmapManipulater = new BeatmapManipulater(mockBeatmapPath);
+			mockBeatmapManipulater.overwrite(startTime, endTime, {
+				startVelocity: 1.0,
+				startVolume: 100,
+				endVelocity: 1.0,
+				endVolume: 100,
+				includingStartTime: true,
+				includingEndTime: false,
+				isDense: false,
+				isOffset: false,
+				isOffsetPrecise: false,
+				svMode: 'linear',
+				isIgnoreVelocity: false,
+				isIgnoreVolume: false,
+				isBackup: false
+			});
+
+			const modifiedBeatmap = new Beatmap(mockBeatmapPath);
+			const inheritedTimingPointTimes = modifiedBeatmap.timingPoints
+				.filter(timingPoint => timingPoint.uninherited === 0)
+				.map(timingPoint => timingPoint.time);
+			const uninheritedTimingPointTimes = modifiedBeatmap.timingPoints
+				.filter(timingPoint => timingPoint.uninherited === 1)
+				.map(timingPoint => timingPoint.time);
+
+			expect(inheritedTimingPointTimes).not.toContain(orphanInheritedTimingPoint.time);
+			expect(uninheritedTimingPointTimes).toContain(uninheritedTimingPoint.time);
 		});
 
 		test('Overwrite Offsets Barline Timing Points', () => {

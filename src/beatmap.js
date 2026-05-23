@@ -166,18 +166,20 @@ class BeatmapManipulater {
 				timingPoints.push(timingPoint);
 			}
 
-			const targetTimes = overwriteTargets.map(target => target.time);
-			const existingTimingPoints = this.beatmap.timingPoints.filter(timingPoint => {
-				return timingPoint.uninherited !== 0 || !this.constructor.hasTimingPointAround(targetTimes, timingPoint.time, 1);
-			});
-
-			this.beatmap.replaceTimingPoints(existingTimingPoints.concat(timingPoints).sort((a, b) => a.time - b.time));
-			this.beatmap.write();
-
-			return;
 		}
 
-		this.beatmap.appendTimingPoints(timingPoints);
+		const targetTimes = timingPoints.map(timingPoint => timingPoint.time);
+		const existingTimingPoints = this.beatmap.timingPoints.filter(timingPoint => {
+			if(timingPoint.uninherited !== 0)
+				return true;
+
+			if(between(timingPoint.time, startTime, endTime, options.includingStartTime, options.includingEndTime))
+				return false;
+
+			return !this.constructor.hasTimingPointAround(targetTimes, timingPoint.time, 1);
+		});
+
+		this.beatmap.replaceTimingPoints(existingTimingPoints.concat(timingPoints).sort((a, b) => a.time - b.time));
 		this.beatmap.write();
 	}
 

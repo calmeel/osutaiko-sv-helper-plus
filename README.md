@@ -17,7 +17,7 @@ This version is based on the original osu!taiko SV Helper and includes fixes for
 
 - Added `1/8 dense mode` in addition to the existing `1/16 dense mode`.
 - Added automatic SV point creation on barlines when using normal overwrite mode. barline positions are calculated from uninherited timing points, using `beatLength * meter`, and the final timestamp is floored.
-- Overwrite now replaces existing inherited timing points within `+-1ms` of the target time.
+- Overwrite now removes all inherited timing points within the selected range and then creates new inherited timing points. Uninherited timing points are preserved.
 - Removed the Kiai option. Overwrite inherits Kiai/effects from the start point, and Modify preserves each timing point's existing effects.
 - Replaced the old Exponential checkbox with an `SV Mode` selector.
 - Added small `Keep` checkboxes for velocity and volume. When enabled, the original inherited value is kept instead of using the input value.
