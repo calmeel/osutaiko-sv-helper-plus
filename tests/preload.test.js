@@ -30,7 +30,6 @@ let $endPointTime;
 let $endPointVelocity;
 let $endPointVolume;
 let $endTimeInclude;
-let $optionKiai;
 let $optionDense;
 let $optionDenseEighth;
 let $optionOffset;
@@ -358,7 +357,7 @@ describe('Front-End Unit Test', () => {
 			expect($optionDenseEighth.checked).toBe(false);
 		});
 
-		test('Ignore Velocity', () => {
+		test('Keep Velocity', () => {
 			$startPointVelocity.value = __VERSION__;
 			$endPointVelocity.value = __VERSION__;
 
@@ -375,7 +374,7 @@ describe('Front-End Unit Test', () => {
 			expect($endPointVelocity.disabled).toBe(false);
 		});
 
-		test('Ignore Volume', () => {
+		test('Keep Volume', () => {
 			$startPointVolume.value = __VERSION__;
 			$endPointVolume.value = __VERSION__;
 
@@ -408,10 +407,10 @@ describe('Front-End Unit Test', () => {
 			expect($endPointVelocity.value).toBe('1');
 
 			$startPointVolume.value = '100';
-			$endPointVolume.value = '0';
+			$endPointVolume.value = '50';
 			$swapVolume.click();
 
-			expect($startPointVolume.value).toBe('0');
+			expect($startPointVolume.value).toBe('50');
 			expect($endPointVolume.value).toBe('100');
 		});
 
@@ -428,7 +427,6 @@ describe('Front-End Unit Test', () => {
 					endPointVelocity: p.endPointVelocity,
 					endPointVolume: p.endPointVolume,
 					endTimeInclude: p.endTimeInclude,
-					optionKiai: p.optionKiai,
 					optionDense: p.optionDense,
 					optionDenseSnap: p.optionDenseSnap,
 					optionOffset: p.optionOffset,
@@ -454,7 +452,6 @@ describe('Front-End Unit Test', () => {
 					endPointVelocity: p.endPointVelocity,
 					endPointVolume: p.endPointVolume,
 					endTimeInclude: p.endTimeInclude,
-					optionKiai: p.optionKiai,
 					optionOffset: p.optionOffset,
 					optionOffsetPrecise: p.optionOffsetPrecise,
 					optionExponential: p.optionExponential,
@@ -570,7 +567,6 @@ describe('Front-End Integrated Test', () => {
 			expect($endPointVelocity.value).toBe(p.endPointVelocity);
 			expect($endPointVolume.value).toBe(p.endPointVolume);
 			expect($endTimeInclude.checked).toBe(p.endTimeInclude);
-			expect($optionKiai.checked).toBe(p.optionKiai);
 			expect($optionDense.checked).toBe(p.optionDense);
 			expect($optionDenseEighth.checked).toBe(p.optionDenseSnap === 8);
 			expect($optionOffset.checked).toBe(p.optionOffset);
@@ -600,7 +596,6 @@ function render() {
 	$endPointVelocity = document.getElementById('ep_velocity');
 	$endPointVolume = document.getElementById('ep_volume');
 	$endTimeInclude = document.getElementById('ep_include');
-	$optionKiai = document.getElementById('op_kiai');
 	$optionDense = document.getElementById('op_dense');
 	$optionDenseEighth = document.getElementById('op_dense_eighth');
 	$optionOffset = document.getElementById('op_offset');
@@ -629,7 +624,6 @@ function matrix(cb) {
 		endPointVelocity: [ '', [ () => $endPointVelocity.value = '2.0', '2.0' ] ],
 		endPointVolume: [ '', [ () => $endPointVolume.value = '50', '50' ] ],
 		endTimeInclude: [ true, [ () => $endTimeInclude.checked = false, false ] ],
-		optionKiai: [ false, [ () => $optionKiai.checked = true, true ] ],
 		optionDense: [ false, [ () => $optionDense.checked = true, true ] ],
 		optionDenseSnap: [ 16, [ () => $optionDenseEighth.checked = true, 8 ] ],
 		optionOffset: [ false, [ () => $optionOffset.checked = true, true ] ],
@@ -672,7 +666,6 @@ function reset() {
 	$endPointVelocity.value = '';
 	$endPointVolume.value = '';
 	$endTimeInclude.checked = true;
-	$optionKiai.checked = false;
 	$optionDense.checked = false;
 	$optionDenseEighth.checked = false;
 	$optionOffset.checked = false;

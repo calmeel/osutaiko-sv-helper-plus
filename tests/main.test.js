@@ -123,7 +123,6 @@ describe('Main Process Unit Test', () => {
 						endVolume: parseInt(p.endPointVolume),
 						includingStartTime: p.startTimeInclude,
 						includingEndTime: p.endTimeInclude,
-						isKiai: p.optionKiai,
 						isDense: p.optionDense,
 						denseSnap: p.optionDenseSnap,
 						isOffset: p.optionOffset,
@@ -140,6 +139,14 @@ describe('Main Process Unit Test', () => {
 
 		matrixThrow((p) => {
 			expect(main.onClickOverwrite(mockEvent, p)).toBe('error');
+		});
+
+		[ '0', '4', '101' ].forEach((volume) => {
+			const parameter = getFulfilledParameter();
+
+			parameter.startPointVolume = volume;
+
+			expect(main.onClickOverwrite(mockEvent, parameter)).toBe('error');
 		});
 
 		BeatmapManipulater.mockClear();
@@ -184,7 +191,6 @@ describe('Main Process Unit Test', () => {
 						endVolume: parseInt(p.endPointVolume),
 						includingStartTime: p.startTimeInclude,
 						includingEndTime: p.endTimeInclude,
-						isKiai: p.optionKiai,
 						isOffset: p.optionOffset,
 						isIgnoreVelocity: p.optionIgnoreVelocity,
 						isIgnoreVolume: p.optionIgnoreVolume,
@@ -199,6 +205,14 @@ describe('Main Process Unit Test', () => {
 
 		matrixThrow((p) => {
 			expect(main.onClickModify(mockEvent, p)).toBe('error');
+		});
+
+		[ '0', '4', '101' ].forEach((volume) => {
+			const parameter = getFulfilledParameter();
+
+			parameter.endPointVolume = volume;
+
+			expect(main.onClickModify(mockEvent, parameter)).toBe('error');
 		});
 
 		BeatmapManipulater.mockClear();
@@ -304,7 +318,6 @@ function matrix(cb) {
 		endPointVelocity: [ '', '2.0' ],
 		endPointVolume: [ '', '50' ],
 		endTimeInclude: [ true, false ],
-		optionKiai: [ false, true ],
 		optionDense: [ false, true ],
 		optionDenseSnap: [ 16, 8 ],
 		optionOffset: [ false, true ],
@@ -343,6 +356,27 @@ function matrix(cb) {
 			cb(caseKeys.reduce(reducer(1), {}));
 		}
 	}
+}
+
+function getFulfilledParameter() {
+	return {
+		beatmapPath: path.join(__dirname, 'beatmap.template.osu'),
+		startPointTime: '00:00:100',
+		startPointVelocity: '1.0',
+		startPointVolume: '100',
+		startTimeInclude: true,
+		endPointTime: '00:01:000',
+		endPointVelocity: '2.0',
+		endPointVolume: '50',
+		endTimeInclude: true,
+		optionDense: false,
+		optionDenseSnap: 16,
+		optionOffset: false,
+		optionIgnoreVelocity: false,
+		optionIgnoreVolume: false,
+		optionExponential: false,
+		optionBackup: false
+	};
 }
 
 function matrixThrow(cb) {

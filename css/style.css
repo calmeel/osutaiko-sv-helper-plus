@@ -93,9 +93,26 @@ input::-webkit-input-placeholder {
 .field input[disabled] {
 	opacity: .4;
 }
+.input-option-row {
+	position: relative;
+}
+.field .input-option-row input {
+	width: 100%;
+}
+.input-option-check {
+	position: absolute;
+	left: calc(100% + 5px);
+	top: 50%;
+	transform: translateY(-50%);
+	flex: 0 0 auto;
+	margin-top: 7px;
+}
 .field-group {
 	display: flex;
 	margin: 0 -10px;
+}
+.field-group-keep {
+	padding-right: 50px;
 }
 .field-group .field {
 	padding: 0 10px;
@@ -171,6 +188,9 @@ input::-webkit-input-placeholder {
 	margin-right:  0 !important;
 	margin-left: -8px !important;
 }
+.checkbox-group .checkbox-assist {
+	margin-right: 8px !important;
+}
 .checkbox-group {
 	display: flex;
 }
@@ -179,6 +199,17 @@ input::-webkit-input-placeholder {
 }
 .checkbox-group .checkbox {
 	margin-right: 16px;
+}
+.checkbox-mini {
+	margin: 0;
+	font-size: 9px;
+	line-height: 1;
+	white-space: nowrap;
+}
+.checkbox-mini label:before {
+	width: 13px;
+	font-size: 15px;
+	left: -2px;
 }
 
 .btn {

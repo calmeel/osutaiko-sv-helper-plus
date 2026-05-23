@@ -215,7 +215,6 @@ window.addEventListener('DOMContentLoaded', () => {
 	const $endPointVolume = document.getElementById('ep_volume');
 	const $endTimeInclude = document.getElementById('ep_include');
 
-	const $optionKiai = document.getElementById('op_kiai');
 	const $optionDense = document.getElementById('op_dense');
 	const $optionDenseEighth = document.getElementById('op_dense_eighth');
 	const $optionOffset = document.getElementById('op_offset');
@@ -308,7 +307,6 @@ window.addEventListener('DOMContentLoaded', () => {
 			endPointVelocity: d.endPointVelocity,
 			endPointVolume: d.endPointVolume,
 			endTimeInclude: d.endTimeInclude,
-			optionKiai: d.optionKiai,
 			optionDense: d.optionDense,
 			optionDenseSnap: d.optionDenseSnap,
 			optionOffset: d.optionOffset,
@@ -333,7 +331,6 @@ window.addEventListener('DOMContentLoaded', () => {
 			endPointVelocity: d.endPointVelocity,
 			endPointVolume: d.endPointVolume,
 			endTimeInclude: d.endTimeInclude,
-			optionKiai: d.optionKiai,
 			optionOffset: d.optionOffset,
 			optionOffsetPrecise: d.optionOffsetPrecise,
 			optionExponential: d.optionExponential,
@@ -375,7 +372,6 @@ window.addEventListener('DOMContentLoaded', () => {
 		const endPointVolume = $endPointVolume.value;
 		const endTimeInclude = $endTimeInclude.checked;
 
-		const optionKiai = $optionKiai.checked;
 		const optionDense = $optionDense.checked;
 		const optionDenseSnap = $optionDenseEighth.checked ? 8 : 16;
 		const optionOffset = $optionOffset.checked;
@@ -395,7 +391,6 @@ window.addEventListener('DOMContentLoaded', () => {
 			endPointVelocity,
 			endPointVolume,
 			endTimeInclude,
-			optionKiai,
 			optionDense,
 			optionDenseSnap,
 			optionOffset,
@@ -418,7 +413,6 @@ window.addEventListener('DOMContentLoaded', () => {
 		$endPointVolume.value = datas.endPointVolume;
 		$endTimeInclude.checked = datas.endTimeInclude;
 
-		$optionKiai.checked = datas.optionKiai;
 		$optionDense.checked = datas.optionDense;
 		$optionDenseEighth.checked = datas.optionDenseSnap === 8;
 		$optionOffset.checked = datas.optionOffset;

@@ -48,6 +48,11 @@ class Main {
 		return type;
 	}
 
+	validateVolumeRange(...volumes) {
+		if(volumes.some(volume => volume < 5 || volume > 100))
+			throw new RangeError;
+	}
+
 	onTriggerFileDialog(e) {
 		const filePaths = dialog.showOpenDialogSync(this.win, {
 			properties: [ 'openFile' ],
@@ -81,7 +86,6 @@ class Main {
 			endPointVelocity,
 			endPointVolume,
 			endTimeInclude,
-			optionKiai,
 			optionDense,
 			optionDenseSnap,
 			optionOffset,
@@ -110,6 +114,9 @@ class Main {
 			endPointTime = parseTimeSafely(endPointTime);
 			endPointVelocity = optionIgnoreVelocity ? parseFloat(endPointVelocity) : parseFloatSafely(endPointVelocity);
 			endPointVolume = optionIgnoreVolume ? parseInt(endPointVolume) : parseIntSafely(endPointVolume);
+
+			if(!optionIgnoreVolume)
+				this.validateVolumeRange(startPointVolume, endPointVolume);
 		} catch(err) {
 			return this.showMessageBox('error', 'Invalid value for input fields', 'You should enter the valid value to all input fields');
 		}
@@ -136,7 +143,6 @@ class Main {
 				endVolume: endPointVolume,
 				includingStartTime: startTimeInclude,
 				includingEndTime: endTimeInclude,
-				isKiai: optionKiai,
 				isDense: optionDense,
 				denseSnap: optionDenseSnap,
 				isOffset: optionOffset,
@@ -166,7 +172,6 @@ class Main {
 			endPointVelocity,
 			endPointVolume,
 			endTimeInclude,
-			optionKiai,
 			optionOffset,
 			optionOffsetPrecise,
 			optionExponential,
@@ -193,6 +198,9 @@ class Main {
 			endPointTime = parseTimeSafely(endPointTime);
 			endPointVelocity = optionIgnoreVelocity ? parseFloat(endPointVelocity) : parseFloatSafely(endPointVelocity);
 			endPointVolume = optionIgnoreVolume ? parseInt(endPointVolume) : parseIntSafely(endPointVolume);
+
+			if(!optionIgnoreVolume)
+				this.validateVolumeRange(startPointVolume, endPointVolume);
 		} catch(err) {
 			return this.showMessageBox('error', 'Invalid value for input fields', 'You should enter the valid value to all input fields');
 		}
@@ -219,7 +227,6 @@ class Main {
 				endVolume: endPointVolume,
 				includingStartTime: startTimeInclude,
 				includingEndTime: endTimeInclude,
-				isKiai: optionKiai,
 				isOffset: optionOffset,
 				isOffsetPrecise: optionOffsetPrecise,
 				isExponential: optionExponential,

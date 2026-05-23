@@ -413,7 +413,6 @@ describe('Beatmap Module Unit Test', () => {
 				endVolume: 100,
 				includingStartTime: true,
 				includingEndTime: true,
-				isKiai: false,
 				isDense: true,
 				denseSnap: 8,
 				isOffset: false,
@@ -447,7 +446,6 @@ describe('Beatmap Module Unit Test', () => {
 				endVolume: 100,
 				includingStartTime: true,
 				includingEndTime: true,
-				isKiai: false,
 				isDense: false,
 				isOffset: false,
 				isOffsetPrecise: false,
@@ -471,6 +469,46 @@ describe('Beatmap Module Unit Test', () => {
 			expect(inheritedTimingPointTimes.filter(time => time === 1608).length).toBe(1);
 		});
 
+		test('Overwrite Inherits Effects From Start Time', () => {
+			const startTime = mockBeatmap.timingPoints[0].time;
+			const endTime = mockBeatmap.hitObjects[4].time;
+
+			mockBeatmap.timingPoints[0].effects = 1;
+			mockBeatmap.replaceTimingPoints(mockBeatmap.timingPoints);
+			mockBeatmap.write();
+
+			mockBeatmapManipulater = new BeatmapManipulater(mockBeatmapPath);
+			const targetTimes = mockBeatmapManipulater.getOverwriteTargetsInRange(startTime, endTime, {
+				includingStartTime: true,
+				includingEndTime: false,
+				isOffset: false,
+				isOffsetPrecise: false
+			}).map(target => target.time);
+
+			mockBeatmapManipulater.overwrite(startTime, endTime, {
+				startVelocity: 1.0,
+				startVolume: 100,
+				endVelocity: 1.0,
+				endVolume: 100,
+				includingStartTime: true,
+				includingEndTime: false,
+				isDense: false,
+				isOffset: false,
+				isOffsetPrecise: false,
+				isExponential: false,
+				isIgnoreVelocity: false,
+				isIgnoreVolume: false,
+				isBackup: false
+			});
+
+			const modifiedBeatmap = new Beatmap(mockBeatmapPath);
+			const inheritedTimingPoints = modifiedBeatmap.timingPoints
+				.filter(timingPoint => timingPoint.uninherited === 0 && targetTimes.includes(timingPoint.time));
+
+			expect(inheritedTimingPoints.length).toBeGreaterThan(0);
+			inheritedTimingPoints.forEach(timingPoint => expect(timingPoint.effects).toBe(1));
+		});
+
 		test('Overwrite Replaces Inherited Timing Points Within One Millisecond', () => {
 			const startTime = mockBeatmap.hitObjects[0].time;
 			const endTime = mockBeatmap.hitObjects[1].time;
@@ -486,7 +524,6 @@ describe('Beatmap Module Unit Test', () => {
 				endVolume: 100,
 				includingStartTime: true,
 				includingEndTime: false,
-				isKiai: false,
 				isDense: false,
 				isOffset: false,
 				isOffsetPrecise: false,
@@ -517,7 +554,6 @@ describe('Beatmap Module Unit Test', () => {
 				endVolume: 100,
 				includingStartTime: true,
 				includingEndTime: false,
-				isKiai: false,
 				isDense: false,
 				isOffset: true,
 				isOffsetPrecise: false,
@@ -566,7 +602,6 @@ describe('Beatmap Module Unit Test', () => {
 				endVolume: 25,
 				includingStartTime: true,
 				includingEndTime: true,
-				isKiai: true,
 				isOffset: false,
 				isOffsetPrecise: false,
 				isExponential: false,
@@ -581,6 +616,36 @@ describe('Beatmap Module Unit Test', () => {
 				.map(timingPoint => timingPoint.toString());
 
 			expect(modifiedUninheritedTimingPoints).toEqual(uninheritedTimingPoints);
+		});
+
+		test('Modify Preserves Inherited Timing Point Effects', () => {
+			const startTime = mockBeatmap.timingPoints[1].time;
+			const endTime = mockBeatmap.timingPoints[2].time;
+
+			mockBeatmap.timingPoints[1].effects = 1;
+			mockBeatmap.replaceTimingPoints(mockBeatmap.timingPoints);
+			mockBeatmap.write();
+
+			mockBeatmapManipulater = new BeatmapManipulater(mockBeatmapPath);
+			mockBeatmapManipulater.modify(startTime, endTime, {
+				startVelocity: 2.0,
+				startVolume: 25,
+				endVelocity: 2.0,
+				endVolume: 25,
+				includingStartTime: true,
+				includingEndTime: false,
+				isOffset: false,
+				isOffsetPrecise: false,
+				isExponential: false,
+				isIgnoreVelocity: false,
+				isIgnoreVolume: false,
+				isBackup: false
+			});
+
+			const modifiedBeatmap = new Beatmap(mockBeatmapPath);
+			const modifiedTimingPoint = modifiedBeatmap.timingPoints.find(timingPoint => timingPoint.time === startTime);
+
+			expect(modifiedTimingPoint.effects).toBe(1);
 		});
 
 		test('Remove', () => {
@@ -638,12 +703,11 @@ function range(cb) {
 function matrix(cb) {
 	const cases = {
 		startVelocity: [ 1.0, 2.0 ],
-		startVolume: [ 100, 0 ],
+		startVolume: [ 100, 5 ],
 		endVelocity: [ 2.0, 1.0 ],
-		endVolume: [ 0, 100 ],
+		endVolume: [ 5, 100 ],
 		includingStartTime: [ true, false ],
 		includingEndTime: [ true, false ],
-		isKiai: [ false, true ],
 		isOffset: [ false, true ],
 		isOffsetPrecise: [ false, true ],
 		isExponential: [ false, true ],
