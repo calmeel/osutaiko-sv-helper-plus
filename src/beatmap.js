@@ -151,49 +151,117 @@ class BeatmapManipulater {
 				timingPoints.push(timingPoint);
 			}
 		} else {
-			const hitObjects = this.beatmap.getHitObjectsInRange(startTime, endTime, options.includingStartTime, options.includingEndTime);
+			const overwriteTargets = this.getOverwriteTargetsInRange(startTime, endTime, options);
 
-			for(let i in hitObjects) {
-				const hitObject = hitObjects[i];
+			for(let i in overwriteTargets) {
+				const overwriteTarget = overwriteTargets[i];
 
 				const timingPoint = new TimingPoint;
-				timingPoint.beatLength = options.isIgnoreVelocity ? this.getInheritableBeatLength(hitObject.time) : (-100 / self.getTimeInterpolatedValue(hitObject.time, startTime, endTime, options.startVelocity, options.endVelocity, options.isExponential));
-				timingPoint.volume = options.isIgnoreVolume ? this.getInheritableVolume(hitObject.time) : (Math.round(self.getTimeInterpolatedValue(hitObject.time, startTime, endTime, options.startVolume, options.endVolume, options.isExponential)));
+				timingPoint.beatLength = options.isIgnoreVelocity ? this.getInheritableBeatLength(overwriteTarget.baseTime) : (-100 / self.getTimeInterpolatedValue(overwriteTarget.baseTime, startTime, endTime, options.startVelocity, options.endVelocity, options.isExponential));
+				timingPoint.volume = options.isIgnoreVolume ? this.getInheritableVolume(overwriteTarget.baseTime) : (Math.round(self.getTimeInterpolatedValue(overwriteTarget.baseTime, startTime, endTime, options.startVolume, options.endVolume, options.isExponential)));
 				timingPoint.effects = options.isKiai ? 1 : 0;
-
-				if(options.isOffsetPrecise) {
-					const timingData = this.getDecimalTimingData(hitObject.time);
-
-					if(timingData.snap !== 12) {
-						const intervalTri = timingData.beatLength.div(3);
-
-						const prevHitObject = this.findPreviousHitObject(hitObject.time);
-						const nextHitObject = this.findNextHitObject(hitObject.time);
-
-						const prevTimingData = prevHitObject !== null ? this.getDecimalTimingData(prevHitObject.time) : null;
-						const nextTimingData = nextHitObject !== null ? this.getDecimalTimingData(nextHitObject.time) : null;
-
-						const isOddAdjacent = (prevTimingData !== null && prevTimingData.time.floor().toNumber() >= timingData.time.sub(intervalTri).floor().toNumber() && prevTimingData.snap === 12)
-										   || (nextTimingData !== null && nextTimingData.time.floor().toNumber() <= timingData.time.add(intervalTri).floor().toNumber() && nextTimingData.snap === 12);
-
-						if(isOddAdjacent) {
-							timingPoint.time = this.getSnapBasedOffsetTime(hitObject.time, -12);
-						} else {
-							timingPoint.time = this.getSnapBasedOffsetTime(hitObject.time, -16);
-						}
-					} else {
-						timingPoint.time = this.getSnapBasedOffsetTime(hitObject.time, -12);
-					}
-				} else {
-					timingPoint.time = options.isOffset ? this.getSnapBasedOffsetTime(hitObject.time, -16) : hitObject.time;
-				}
+				timingPoint.time = overwriteTarget.time;
 
 				timingPoints.push(timingPoint);
 			}
+
+			const targetTimes = overwriteTargets.map(target => target.time);
+			const existingTimingPoints = this.beatmap.timingPoints.filter(timingPoint => {
+				return timingPoint.uninherited !== 0 || !this.constructor.hasTimingPointAround(targetTimes, timingPoint.time, 1);
+			});
+
+			this.beatmap.replaceTimingPoints(existingTimingPoints.concat(timingPoints).sort((a, b) => a.time - b.time));
+			this.beatmap.write();
+
+			return;
 		}
 
 		this.beatmap.appendTimingPoints(timingPoints);
 		this.beatmap.write();
+	}
+
+	getOverwriteTargetsInRange(startTime, endTime, options) {
+		const hitObjects = this.beatmap.getHitObjectsInRange(startTime, endTime, options.includingStartTime, options.includingEndTime);
+		const targets = hitObjects.map(hitObject => {
+			return {
+				baseTime: hitObject.time,
+				time: this.getOverwriteTargetTime(hitObject.time, options, true)
+			};
+		});
+
+		this.getBarlineTimesInRange(startTime, endTime, options.includingStartTime, options.includingEndTime).forEach(barlineTime => {
+			targets.push({
+				baseTime: barlineTime,
+				time: this.getOverwriteTargetTime(barlineTime, options, false)
+			});
+		});
+
+		return targets.sort((a, b) => a.time - b.time).reduce((accumulator, target) => {
+			if(!this.constructor.hasTimingPointAround(accumulator.map(v => v.time), target.time, 1)) {
+				accumulator.push(target);
+			}
+
+			return accumulator;
+		}, []);
+	}
+
+	getOverwriteTargetTime(time, options, isHitObject) {
+		if(isHitObject && options.isOffsetPrecise) {
+			const timingData = this.getDecimalTimingData(time);
+
+			if(timingData.snap !== 12) {
+				const intervalTri = timingData.beatLength.div(3);
+
+				const prevHitObject = this.findPreviousHitObject(time);
+				const nextHitObject = this.findNextHitObject(time);
+
+				const prevTimingData = prevHitObject !== null ? this.getDecimalTimingData(prevHitObject.time) : null;
+				const nextTimingData = nextHitObject !== null ? this.getDecimalTimingData(nextHitObject.time) : null;
+
+				const isOddAdjacent = (prevTimingData !== null && prevTimingData.time.floor().toNumber() >= timingData.time.sub(intervalTri).floor().toNumber() && prevTimingData.snap === 12)
+								   || (nextTimingData !== null && nextTimingData.time.floor().toNumber() <= timingData.time.add(intervalTri).floor().toNumber() && nextTimingData.snap === 12);
+
+				if(isOddAdjacent) {
+					return this.getSnapBasedOffsetTime(time, -12);
+				}
+
+				return this.getSnapBasedOffsetTime(time, -16);
+			}
+
+			return this.getSnapBasedOffsetTime(time, -12);
+		}
+
+		return options.isOffset ? this.getSnapBasedOffsetTime(time, -16) : time;
+	}
+
+	getBarlineTimesInRange(startTime, endTime, includingStartTime=true, includingEndTime=true) {
+		const barlineTimes = [];
+		const uninheritedTimingPoints = this.beatmap.timingPoints.filter(timingPoint => timingPoint.uninherited === 1);
+
+		for(let i = 0; i < uninheritedTimingPoints.length; i++) {
+			const timingPoint = uninheritedTimingPoints[i];
+			const nextTimingPoint = uninheritedTimingPoints[i + 1];
+			const segmentEndTime = nextTimingPoint ? Math.min(endTime, nextTimingPoint.time) : endTime;
+			const measureLength = Decimal(timingPoint.beatLength).mul(timingPoint.meter);
+			let barlineTime = Decimal(timingPoint.time);
+
+			while(barlineTime.lt(startTime)) {
+				barlineTime = barlineTime.add(measureLength);
+			}
+
+			while(barlineTime.lte(segmentEndTime)) {
+				const flooredTime = barlineTime.floor().toNumber();
+				const beforeNextTimingPoint = !nextTimingPoint || flooredTime < nextTimingPoint.time;
+
+				if(beforeNextTimingPoint && between(flooredTime, startTime, endTime, includingStartTime, includingEndTime)) {
+					barlineTimes.push(flooredTime);
+				}
+
+				barlineTime = barlineTime.add(measureLength);
+			}
+		}
+
+		return barlineTimes;
 	}
 
 	modify(startTime, endTime, options) {
@@ -361,6 +429,10 @@ class BeatmapManipulater {
 		const progress = (cTime - sTime) / (eTime - sTime);
 
 		return (((isExponential ? Math.pow(progress, 3) : progress) * (eValue - sValue)) + sValue);
+	}
+
+	static hasTimingPointAround(times, time, threshold=1) {
+		return times.some(t => Math.abs(t - time) <= threshold);
 	}
 
 	static getBackupPath(beatmapName=null) {

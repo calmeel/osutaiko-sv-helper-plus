@@ -437,6 +437,105 @@ describe('Beatmap Module Unit Test', () => {
 			expect(addedTimingPoints.map(timingPoint => timingPoint.time)).toEqual(expectedTimingPointTimes);
 		});
 
+		test('Overwrite Adds Barline Timing Points', () => {
+			const startTime = mockBeatmap.timingPoints[0].time;
+			const endTime = mockBeatmap.timingPoints.slice(-1)[0].time;
+			const options = {
+				startVelocity: 1.0,
+				startVolume: 100,
+				endVelocity: 1.0,
+				endVolume: 100,
+				includingStartTime: true,
+				includingEndTime: true,
+				isKiai: false,
+				isDense: false,
+				isOffset: false,
+				isOffsetPrecise: false,
+				isExponential: false,
+				isIgnoreVelocity: false,
+				isIgnoreVolume: false,
+				isBackup: false
+			};
+			const barlineTimes = mockBeatmapManipulater.getBarlineTimesInRange(startTime, endTime);
+
+			expect(barlineTimes).toEqual([ 565, 1608, 2651, 3695 ]);
+
+			mockBeatmapManipulater.overwrite(startTime, endTime, options);
+
+			const modifiedBeatmap = new Beatmap(mockBeatmapPath);
+			const inheritedTimingPointTimes = modifiedBeatmap.timingPoints
+				.filter(timingPoint => timingPoint.uninherited === 0)
+				.map(timingPoint => timingPoint.time);
+
+			barlineTimes.forEach(time => expect(inheritedTimingPointTimes).toContain(time));
+			expect(inheritedTimingPointTimes.filter(time => time === 1608).length).toBe(1);
+		});
+
+		test('Overwrite Replaces Inherited Timing Points Within One Millisecond', () => {
+			const startTime = mockBeatmap.hitObjects[0].time;
+			const endTime = mockBeatmap.hitObjects[1].time;
+			const existingTimingPoint = new TimingPoint(startTime + 1, -50, 4, 2, 0, 75, 0, 0);
+
+			mockBeatmap.replaceTimingPoints(mockBeatmap.timingPoints.concat([ existingTimingPoint ]).sort((a, b) => a.time - b.time));
+
+			mockBeatmapManipulater = new BeatmapManipulater(mockBeatmapPath);
+			mockBeatmapManipulater.overwrite(startTime, endTime, {
+				startVelocity: 1.0,
+				startVolume: 100,
+				endVelocity: 1.0,
+				endVolume: 100,
+				includingStartTime: true,
+				includingEndTime: false,
+				isKiai: false,
+				isDense: false,
+				isOffset: false,
+				isOffsetPrecise: false,
+				isExponential: false,
+				isIgnoreVelocity: false,
+				isIgnoreVolume: false,
+				isBackup: false
+			});
+
+			const modifiedBeatmap = new Beatmap(mockBeatmapPath);
+			const inheritedTimingPointTimes = modifiedBeatmap.timingPoints
+				.filter(timingPoint => timingPoint.uninherited === 0)
+				.map(timingPoint => timingPoint.time);
+
+			expect(inheritedTimingPointTimes).toContain(startTime);
+			expect(inheritedTimingPointTimes).not.toContain(startTime + 1);
+		});
+
+		test('Overwrite Offsets Barline Timing Points', () => {
+			const startTime = mockBeatmap.timingPoints[0].time;
+			const endTime = mockBeatmap.hitObjects[4].time;
+			const expectedOffsetTime = mockBeatmapManipulater.getSnapBasedOffsetTime(startTime, -16);
+
+			mockBeatmapManipulater.overwrite(startTime, endTime, {
+				startVelocity: 1.0,
+				startVolume: 100,
+				endVelocity: 1.0,
+				endVolume: 100,
+				includingStartTime: true,
+				includingEndTime: false,
+				isKiai: false,
+				isDense: false,
+				isOffset: true,
+				isOffsetPrecise: false,
+				isExponential: false,
+				isIgnoreVelocity: false,
+				isIgnoreVolume: false,
+				isBackup: false
+			});
+
+			const modifiedBeatmap = new Beatmap(mockBeatmapPath);
+			const inheritedTimingPointTimes = modifiedBeatmap.timingPoints
+				.filter(timingPoint => timingPoint.uninherited === 0)
+				.map(timingPoint => timingPoint.time);
+
+			expect(inheritedTimingPointTimes).toContain(expectedOffsetTime);
+			expect(inheritedTimingPointTimes).not.toContain(startTime);
+		});
+
 		test('Modify', () => {
 			const startTime = mockBeatmap.timingPoints[1].time;
 			const endTime = mockBeatmap.timingPoints.slice(-1)[0].time;
