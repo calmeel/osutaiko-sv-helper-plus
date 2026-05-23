@@ -258,7 +258,15 @@ describe('Beatmap Module Unit Test', () => {
 		test('Get Time Interpolated & Mapped Value', () => {
 			for(let i = 0; i <= 100; i++) {
 				expect(BeatmapManipulater.getTimeInterpolatedValue(i, 0, 100, 1, 2)).toBe(1 + i / 100);
-				expect(BeatmapManipulater.getTimeInterpolatedValue(i, 0, 100, 1, 2, false)).toBe(1 + i / 100);
+				expect(BeatmapManipulater.getTimeInterpolatedValue(i, 0, 100, 1, 2, 'linear')).toBe(1 + i / 100);
+				expect(BeatmapManipulater.getTimeInterpolatedValue(i, 0, 100, 1, 2, 'ratio')).toBe(1 * Math.pow(2 / 1, i / 100));
+				expect(BeatmapManipulater.getTimeInterpolatedValue(i, 0, 100, 1, 2, 'cubicIn')).toBe(1 + Math.pow(i / 100, 3));
+				expect(BeatmapManipulater.getTimeInterpolatedValue(i, 0, 100, 1, 2, 'cubicOut')).toBe(1 + (1 - Math.pow(1 - i / 100, 3)));
+				expect(BeatmapManipulater.getTimeInterpolatedValue(i, 0, 100, 1, 2, 'sineIn')).toBe(1 + (1 - Math.cos(((i / 100) * Math.PI) / 2)));
+				expect(BeatmapManipulater.getTimeInterpolatedValue(i, 0, 100, 1, 2, 'sineOut')).toBe(1 + Math.sin(((i / 100) * Math.PI) / 2));
+				expect(BeatmapManipulater.getTimeInterpolatedValue(i, 0, 100, 1, 2, 'cubic')).toBe(1 + Math.pow(i / 100, 3));
+				expect(BeatmapManipulater.getTimeInterpolatedValue(i, 0, 100, 1, 2, 'curveIn')).toBe(1 + Math.pow(i / 100, 3));
+				expect(BeatmapManipulater.getTimeInterpolatedValue(i, 0, 100, 1, 2, 'curveOut')).toBe(1 + (1 - Math.pow(1 - i / 100, 3)));
 				expect(BeatmapManipulater.getTimeInterpolatedValue(i, 0, 100, 1, 2, true)).toBe(1 + Math.pow(i / 100, 3));
 			}
 		});
@@ -417,7 +425,7 @@ describe('Beatmap Module Unit Test', () => {
 				denseSnap: 8,
 				isOffset: false,
 				isOffsetPrecise: false,
-				isExponential: false,
+				svMode: 'linear',
 				isIgnoreVelocity: false,
 				isIgnoreVolume: false,
 				isBackup: false
@@ -449,7 +457,7 @@ describe('Beatmap Module Unit Test', () => {
 				isDense: false,
 				isOffset: false,
 				isOffsetPrecise: false,
-				isExponential: false,
+				svMode: 'linear',
 				isIgnoreVelocity: false,
 				isIgnoreVolume: false,
 				isBackup: false
@@ -495,7 +503,7 @@ describe('Beatmap Module Unit Test', () => {
 				isDense: false,
 				isOffset: false,
 				isOffsetPrecise: false,
-				isExponential: false,
+				svMode: 'linear',
 				isIgnoreVelocity: false,
 				isIgnoreVolume: false,
 				isBackup: false
@@ -527,7 +535,7 @@ describe('Beatmap Module Unit Test', () => {
 				isDense: false,
 				isOffset: false,
 				isOffsetPrecise: false,
-				isExponential: false,
+				svMode: 'linear',
 				isIgnoreVelocity: false,
 				isIgnoreVolume: false,
 				isBackup: false
@@ -557,7 +565,7 @@ describe('Beatmap Module Unit Test', () => {
 				isDense: false,
 				isOffset: true,
 				isOffsetPrecise: false,
-				isExponential: false,
+				svMode: 'linear',
 				isIgnoreVelocity: false,
 				isIgnoreVolume: false,
 				isBackup: false
@@ -604,7 +612,7 @@ describe('Beatmap Module Unit Test', () => {
 				includingEndTime: true,
 				isOffset: false,
 				isOffsetPrecise: false,
-				isExponential: false,
+				svMode: 'linear',
 				isIgnoreVelocity: false,
 				isIgnoreVolume: false,
 				isBackup: false
@@ -636,7 +644,7 @@ describe('Beatmap Module Unit Test', () => {
 				includingEndTime: false,
 				isOffset: false,
 				isOffsetPrecise: false,
-				isExponential: false,
+				svMode: 'linear',
 				isIgnoreVelocity: false,
 				isIgnoreVolume: false,
 				isBackup: false
@@ -710,7 +718,7 @@ function matrix(cb) {
 		includingEndTime: [ true, false ],
 		isOffset: [ false, true ],
 		isOffsetPrecise: [ false, true ],
-		isExponential: [ false, true ],
+		svMode: [ 'linear', 'sineOut' ],
 		isIgnoreVelocity: [ false, true ],
 		isIgnoreVolume: [ false, true ],
 		isBackup: [ false, true ]

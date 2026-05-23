@@ -91,6 +91,7 @@ class Main {
 			optionOffset,
 			optionOffsetPrecise,
 			optionExponential,
+			svMode,
 			optionIgnoreVelocity,
 			optionIgnoreVolume,
 			optionBackup
@@ -147,7 +148,7 @@ class Main {
 				denseSnap: optionDenseSnap,
 				isOffset: optionOffset,
 				isOffsetPrecise: optionOffsetPrecise,
-				isExponential: optionExponential,
+				svMode: svMode || (optionExponential ? 'cubicIn' : 'linear'),
 				isIgnoreVelocity: optionIgnoreVelocity,
 				isIgnoreVolume: optionIgnoreVolume,
 				isBackup: optionBackup
@@ -175,6 +176,7 @@ class Main {
 			optionOffset,
 			optionOffsetPrecise,
 			optionExponential,
+			svMode,
 			optionIgnoreVelocity,
 			optionIgnoreVolume,
 			optionBackup
@@ -229,7 +231,7 @@ class Main {
 				includingEndTime: endTimeInclude,
 				isOffset: optionOffset,
 				isOffsetPrecise: optionOffsetPrecise,
-				isExponential: optionExponential,
+				svMode: svMode || (optionExponential ? 'cubicIn' : 'linear'),
 				isIgnoreVelocity: optionIgnoreVelocity,
 				isIgnoreVolume: optionIgnoreVolume,
 				isBackup: optionBackup

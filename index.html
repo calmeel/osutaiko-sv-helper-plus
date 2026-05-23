@@ -94,12 +94,19 @@
 							( <label for="op_offset_precise">-1/12 Inclusive</label> )
 						</div>
 					</div>
-					<div class="checkbox-group">
-						<div class="checkbox">
-							<input type="checkbox" id="op_exponential">
-							<label for="op_exponential">Exponential</label>
+					<div class="checkbox-group option-mode-row">
+						<div class="option-select">
+							<label for="op_sv_mode">SV Mode</label>
+							<select id="op_sv_mode">
+								<option value="linear" selected>Linear</option>
+								<option value="ratio">Ratio</option>
+								<option value="cubicIn">Cubic In / Accelerate Curve</option>
+								<option value="cubicOut">Cubic Out / Decelerate Curve</option>
+								<option value="sineIn">Sine In / Accelerate Curve</option>
+								<option value="sineOut">Sine Out / Decelerate Curve</option>
+							</select>
 						</div>
-						<div class="checkbox">
+						<div class="checkbox option-backup">
 							<input type="checkbox" id="op_backup" checked>
 							<label for="op_backup">Backup</label>
 						</div>

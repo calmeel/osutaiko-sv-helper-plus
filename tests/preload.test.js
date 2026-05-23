@@ -34,7 +34,7 @@ let $optionDense;
 let $optionDenseEighth;
 let $optionOffset;
 let $optionOffsetPrecise;
-let $optionExponential;
+let $svMode;
 let $optionIgnoreVelocity;
 let $optionIgnoreVolume;
 let $optionBackup;
@@ -431,7 +431,7 @@ describe('Front-End Unit Test', () => {
 					optionDenseSnap: p.optionDenseSnap,
 					optionOffset: p.optionOffset,
 					optionOffsetPrecise: p.optionOffsetPrecise,
-					optionExponential: p.optionExponential,
+					svMode: p.svMode,
 					optionIgnoreVelocity: p.optionIgnoreVelocity,
 					optionIgnoreVolume: p.optionIgnoreVolume,
 					optionBackup: p.optionBackup
@@ -454,7 +454,7 @@ describe('Front-End Unit Test', () => {
 					endTimeInclude: p.endTimeInclude,
 					optionOffset: p.optionOffset,
 					optionOffsetPrecise: p.optionOffsetPrecise,
-					optionExponential: p.optionExponential,
+					svMode: p.svMode,
 					optionIgnoreVelocity: p.optionIgnoreVelocity,
 					optionIgnoreVolume: p.optionIgnoreVolume,
 					optionBackup: p.optionBackup
@@ -571,7 +571,7 @@ describe('Front-End Integrated Test', () => {
 			expect($optionDenseEighth.checked).toBe(p.optionDenseSnap === 8);
 			expect($optionOffset.checked).toBe(p.optionOffset);
 			expect($optionOffsetPrecise.checked).toBe(p.optionOffsetPrecise);
-			expect($optionExponential.checked).toBe(p.optionExponential);
+			expect($svMode.value).toBe(p.svMode);
 			expect($optionIgnoreVelocity.checked).toBe(p.optionIgnoreVelocity);
 			expect($optionIgnoreVolume.checked).toBe(p.optionIgnoreVolume);
 			expect($optionBackup.checked).toBe(p.optionBackup);
@@ -600,7 +600,7 @@ function render() {
 	$optionDenseEighth = document.getElementById('op_dense_eighth');
 	$optionOffset = document.getElementById('op_offset');
 	$optionOffsetPrecise = document.getElementById('op_offset_precise');
-	$optionExponential = document.getElementById('op_exponential');
+	$svMode = document.getElementById('op_sv_mode');
 	$optionIgnoreVelocity = document.getElementById('op_ignr_velocity');
 	$optionIgnoreVolume = document.getElementById('op_ignr_volume');
 	$optionBackup = document.getElementById('op_backup');
@@ -628,7 +628,7 @@ function matrix(cb) {
 		optionDenseSnap: [ 16, [ () => $optionDenseEighth.checked = true, 8 ] ],
 		optionOffset: [ false, [ () => $optionOffset.checked = true, true ] ],
 		optionOffsetPrecise: [ false, [ () => $optionOffsetPrecise.checked = true, true ] ],
-		optionExponential: [ false, [ () => $optionExponential.checked = true, true ] ],
+		svMode: [ 'linear', [ () => $svMode.value = 'sineOut', 'sineOut' ] ],
 		optionIgnoreVelocity: [ false, [ () => $optionIgnoreVelocity.checked = true, true ] ],
 		optionIgnoreVolume: [ false, [ () => $optionIgnoreVolume.checked = true, true ] ],
 		optionBackup: [ true, [ () => $optionBackup.checked = false, false ] ]
@@ -670,7 +670,7 @@ function reset() {
 	$optionDenseEighth.checked = false;
 	$optionOffset.checked = false;
 	$optionOffsetPrecise.checked = false;
-	$optionExponential.checked = false;
+	$svMode.value = 'linear';
 	$optionIgnoreVelocity.checked = false;
 	$optionIgnoreVolume.checked = false;
 	$optionBackup.checked = true;

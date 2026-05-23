@@ -219,7 +219,7 @@ window.addEventListener('DOMContentLoaded', () => {
 	const $optionDenseEighth = document.getElementById('op_dense_eighth');
 	const $optionOffset = document.getElementById('op_offset');
 	const $optionOffsetPrecise = document.getElementById('op_offset_precise');
-	const $optionExponential = document.getElementById('op_exponential');
+	const $svMode = document.getElementById('op_sv_mode');
 	const $optionIgnoreVelocity = document.getElementById('op_ignr_velocity');
 	const $optionIgnoreVolume = document.getElementById('op_ignr_volume');
 	const $optionBackup = document.getElementById('op_backup');
@@ -311,7 +311,7 @@ window.addEventListener('DOMContentLoaded', () => {
 			optionDenseSnap: d.optionDenseSnap,
 			optionOffset: d.optionOffset,
 			optionOffsetPrecise: d.optionOffsetPrecise,
-			optionExponential: d.optionExponential,
+			svMode: d.svMode,
 			optionIgnoreVelocity: d.optionIgnoreVelocity,
 			optionIgnoreVolume: d.optionIgnoreVolume,
 			optionBackup: d.optionBackup
@@ -333,7 +333,7 @@ window.addEventListener('DOMContentLoaded', () => {
 			endTimeInclude: d.endTimeInclude,
 			optionOffset: d.optionOffset,
 			optionOffsetPrecise: d.optionOffsetPrecise,
-			optionExponential: d.optionExponential,
+			svMode: d.svMode,
 			optionIgnoreVelocity: d.optionIgnoreVelocity,
 			optionIgnoreVolume: d.optionIgnoreVolume,
 			optionBackup: d.optionBackup
@@ -376,7 +376,7 @@ window.addEventListener('DOMContentLoaded', () => {
 		const optionDenseSnap = $optionDenseEighth.checked ? 8 : 16;
 		const optionOffset = $optionOffset.checked;
 		const optionOffsetPrecise = $optionOffsetPrecise.checked;
-		const optionExponential = $optionExponential.checked;
+		const svMode = $svMode.value;
 		const optionIgnoreVelocity = $optionIgnoreVelocity.checked;
 		const optionIgnoreVolume = $optionIgnoreVolume.checked;
 		const optionBackup = $optionBackup.checked;
@@ -395,7 +395,7 @@ window.addEventListener('DOMContentLoaded', () => {
 			optionDenseSnap,
 			optionOffset,
 			optionOffsetPrecise,
-			optionExponential,
+			svMode,
 			optionIgnoreVelocity,
 			optionIgnoreVolume,
 			optionBackup
@@ -417,7 +417,7 @@ window.addEventListener('DOMContentLoaded', () => {
 		$optionDenseEighth.checked = datas.optionDenseSnap === 8;
 		$optionOffset.checked = datas.optionOffset;
 		$optionOffsetPrecise.checked = datas.optionOffsetPrecise;
-		$optionExponential.checked = datas.optionExponential;
+		$svMode.value = normalizeSvMode(datas.svMode || (datas.optionExponential ? 'cubicIn' : 'linear'));
 		$optionIgnoreVelocity.checked = datas.optionIgnoreVelocity;
 		$optionIgnoreVolume.checked = datas.optionIgnoreVolume;
 		$optionBackup.checked = datas.optionBackup;
@@ -487,6 +487,16 @@ window.addEventListener('DOMContentLoaded', () => {
 
 	function onSwapVolumeButtonClick() {
 		[$startPointVolume.value, $endPointVolume.value] = [$endPointVolume.value, $startPointVolume.value];
+	}
+
+	function normalizeSvMode(svMode) {
+		if(svMode === 'cubic' || svMode === 'curveIn')
+			return 'cubicIn';
+
+		if(svMode === 'curveOut')
+			return 'cubicOut';
+
+		return svMode;
 	}
 });
 

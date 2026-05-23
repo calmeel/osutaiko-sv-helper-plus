@@ -145,8 +145,8 @@ class BeatmapManipulater {
 				if(i === endTime && options.includingEndTime === false) continue;
 
 				const timingPoint = new TimingPoint;
-				timingPoint.beatLength = options.isIgnoreVelocity ? this.getInheritableBeatLength(i) : (-100 / self.getTimeInterpolatedValue(i, startTime, endTime, options.startVelocity, options.endVelocity, options.isExponential));
-				timingPoint.volume = options.isIgnoreVolume ? this.getInheritableVolume(i) : (Math.round(self.getTimeInterpolatedValue(i, startTime, endTime, options.startVolume, options.endVolume, options.isExponential)));
+				timingPoint.beatLength = options.isIgnoreVelocity ? this.getInheritableBeatLength(i) : (-100 / self.getTimeInterpolatedValue(i, startTime, endTime, options.startVelocity, options.endVelocity, options.svMode));
+				timingPoint.volume = options.isIgnoreVolume ? this.getInheritableVolume(i) : (Math.round(self.getTimeInterpolatedValue(i, startTime, endTime, options.startVolume, options.endVolume, options.svMode)));
 				timingPoint.time = options.isOffset ? this.getSnapBasedOffsetTime(i, -16) : i;
 				timingPoint.effects = inheritedEffects;
 				timingPoints.push(timingPoint);
@@ -158,8 +158,8 @@ class BeatmapManipulater {
 				const overwriteTarget = overwriteTargets[i];
 
 				const timingPoint = new TimingPoint;
-				timingPoint.beatLength = options.isIgnoreVelocity ? this.getInheritableBeatLength(overwriteTarget.baseTime) : (-100 / self.getTimeInterpolatedValue(overwriteTarget.baseTime, startTime, endTime, options.startVelocity, options.endVelocity, options.isExponential));
-				timingPoint.volume = options.isIgnoreVolume ? this.getInheritableVolume(overwriteTarget.baseTime) : (Math.round(self.getTimeInterpolatedValue(overwriteTarget.baseTime, startTime, endTime, options.startVolume, options.endVolume, options.isExponential)));
+				timingPoint.beatLength = options.isIgnoreVelocity ? this.getInheritableBeatLength(overwriteTarget.baseTime) : (-100 / self.getTimeInterpolatedValue(overwriteTarget.baseTime, startTime, endTime, options.startVelocity, options.endVelocity, options.svMode));
+				timingPoint.volume = options.isIgnoreVolume ? this.getInheritableVolume(overwriteTarget.baseTime) : (Math.round(self.getTimeInterpolatedValue(overwriteTarget.baseTime, startTime, endTime, options.startVolume, options.endVolume, options.svMode)));
 				timingPoint.effects = inheritedEffects;
 				timingPoint.time = overwriteTarget.time;
 
@@ -279,8 +279,8 @@ class BeatmapManipulater {
 
 		for(let i in timingPoints) {
 			const timingPoint = timingPoints[i];
-			timingPoint.beatLength = options.isIgnoreVelocity ? timingPoint.beatLength : (-100 / self.getTimeInterpolatedValue(timingPoint.time, startTime, endTime, options.startVelocity, options.endVelocity, options.isExponential));
-			timingPoint.volume = options.isIgnoreVolume ? timingPoint.volume : (Math.round(self.getTimeInterpolatedValue(timingPoint.time, startTime, endTime, options.startVolume, options.endVolume, options.isExponential)));
+			timingPoint.beatLength = options.isIgnoreVelocity ? timingPoint.beatLength : (-100 / self.getTimeInterpolatedValue(timingPoint.time, startTime, endTime, options.startVelocity, options.endVelocity, options.svMode));
+			timingPoint.volume = options.isIgnoreVolume ? timingPoint.volume : (Math.round(self.getTimeInterpolatedValue(timingPoint.time, startTime, endTime, options.startVolume, options.endVolume, options.svMode)));
 		}
 
 		this.beatmap.replaceTimingPoints(this.beatmap.timingPoints);
@@ -434,10 +434,39 @@ class BeatmapManipulater {
 		return timingData.time.floor().toNumber();
 	}
 
-	static getTimeInterpolatedValue(cTime, sTime, eTime, sValue, eValue, isExponential=false) {
+	static getTimeInterpolatedValue(cTime, sTime, eTime, sValue, eValue, svMode='linear') {
 		const progress = (cTime - sTime) / (eTime - sTime);
+		const mode = this.normalizeSvMode(svMode);
 
-		return (((isExponential ? Math.pow(progress, 3) : progress) * (eValue - sValue)) + sValue);
+		if(mode === 'ratio')
+			return sValue * Math.pow(eValue / sValue, progress);
+
+		if(mode === 'cubicOut')
+			return ((1 - Math.pow(1 - progress, 3)) * (eValue - sValue)) + sValue;
+
+		if(mode === 'sineIn')
+			return ((1 - Math.cos((progress * Math.PI) / 2)) * (eValue - sValue)) + sValue;
+
+		if(mode === 'sineOut')
+			return (Math.sin((progress * Math.PI) / 2) * (eValue - sValue)) + sValue;
+
+		return ((((mode === 'cubicIn') ? Math.pow(progress, 3) : progress) * (eValue - sValue)) + sValue);
+	}
+
+	static normalizeSvMode(svMode) {
+		if(svMode === true)
+			return 'cubicIn';
+
+		if(svMode === 'cubic' || svMode === 'curveIn')
+			return 'cubicIn';
+
+		if(svMode === 'curveOut')
+			return 'cubicOut';
+
+		if(svMode === 'ratio' || svMode === 'cubicIn' || svMode === 'cubicOut' || svMode === 'sineIn' || svMode === 'sineOut')
+			return svMode;
+
+		return 'linear';
 	}
 
 	static hasTimingPointAround(times, time, threshold=1) {

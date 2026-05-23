@@ -128,7 +128,7 @@ describe('Main Process Unit Test', () => {
 						isOffset: p.optionOffset,
 						isIgnoreVelocity: p.optionIgnoreVelocity,
 						isIgnoreVolume: p.optionIgnoreVolume,
-						isExponential: p.optionExponential,
+						svMode: p.svMode,
 						isBackup: p.optionBackup
 					})
 				);
@@ -194,7 +194,7 @@ describe('Main Process Unit Test', () => {
 						isOffset: p.optionOffset,
 						isIgnoreVelocity: p.optionIgnoreVelocity,
 						isIgnoreVolume: p.optionIgnoreVolume,
-						isExponential: p.optionExponential,
+						svMode: p.svMode,
 						isBackup: p.optionBackup
 					})
 				);
@@ -323,7 +323,7 @@ function matrix(cb) {
 		optionOffset: [ false, true ],
 		optionIgnoreVelocity: [ false, true ],
 		optionIgnoreVolume: [ false, true ],
-		optionExponential: [ false, true ],
+		svMode: [ 'linear', 'ratio' ],
 		optionBackup: [ true, false ]
 	};
 
@@ -374,7 +374,7 @@ function getFulfilledParameter() {
 		optionOffset: false,
 		optionIgnoreVelocity: false,
 		optionIgnoreVolume: false,
-		optionExponential: false,
+		svMode: 'linear',
 		optionBackup: false
 	};
 }
