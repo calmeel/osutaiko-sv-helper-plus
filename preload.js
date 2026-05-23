@@ -217,6 +217,7 @@ window.addEventListener('DOMContentLoaded', () => {
 
 	const $optionKiai = document.getElementById('op_kiai');
 	const $optionDense = document.getElementById('op_dense');
+	const $optionDenseEighth = document.getElementById('op_dense_eighth');
 	const $optionOffset = document.getElementById('op_offset');
 	const $optionOffsetPrecise = document.getElementById('op_offset_precise');
 	const $optionExponential = document.getElementById('op_exponential');
@@ -242,6 +243,8 @@ window.addEventListener('DOMContentLoaded', () => {
 	$removeButton.addEventListener('click', onRemoveClick);
 	$backupButton.addEventListener('click', onBackupClick);
 
+	$optionDense.addEventListener('change', onDenseChange);
+	$optionDenseEighth.addEventListener('change', onDenseEighthChange);
 	$optionOffset.addEventListener('change', onOffsetChange);
 	$optionOffsetPrecise.addEventListener('change', onOffsetPreciseChange);
 	$optionIgnoreVelocity.addEventListener('change', onIgnoreVelocityChange);
@@ -307,6 +310,7 @@ window.addEventListener('DOMContentLoaded', () => {
 			endTimeInclude: d.endTimeInclude,
 			optionKiai: d.optionKiai,
 			optionDense: d.optionDense,
+			optionDenseSnap: d.optionDenseSnap,
 			optionOffset: d.optionOffset,
 			optionOffsetPrecise: d.optionOffsetPrecise,
 			optionExponential: d.optionExponential,
@@ -373,6 +377,7 @@ window.addEventListener('DOMContentLoaded', () => {
 
 		const optionKiai = $optionKiai.checked;
 		const optionDense = $optionDense.checked;
+		const optionDenseSnap = $optionDenseEighth.checked ? 8 : 16;
 		const optionOffset = $optionOffset.checked;
 		const optionOffsetPrecise = $optionOffsetPrecise.checked;
 		const optionExponential = $optionExponential.checked;
@@ -392,6 +397,7 @@ window.addEventListener('DOMContentLoaded', () => {
 			endTimeInclude,
 			optionKiai,
 			optionDense,
+			optionDenseSnap,
 			optionOffset,
 			optionOffsetPrecise,
 			optionExponential,
@@ -414,6 +420,7 @@ window.addEventListener('DOMContentLoaded', () => {
 
 		$optionKiai.checked = datas.optionKiai;
 		$optionDense.checked = datas.optionDense;
+		$optionDenseEighth.checked = datas.optionDenseSnap === 8;
 		$optionOffset.checked = datas.optionOffset;
 		$optionOffsetPrecise.checked = datas.optionOffsetPrecise;
 		$optionExponential.checked = datas.optionExponential;
@@ -421,8 +428,19 @@ window.addEventListener('DOMContentLoaded', () => {
 		$optionIgnoreVolume.checked = datas.optionIgnoreVolume;
 		$optionBackup.checked = datas.optionBackup;
 
+		$optionDenseEighth.dispatchEvent(new Event('change'));
 		$optionIgnoreVelocity.dispatchEvent(new Event('change'));
 		$optionIgnoreVolume.dispatchEvent(new Event('change'));
+	}
+
+	function onDenseChange() {
+		if(!$optionDense.checked)
+			$optionDenseEighth.checked = false;
+	}
+
+	function onDenseEighthChange() {
+		if($optionDenseEighth.checked)
+			$optionDense.checked = true;
 	}
 
 	function onOffsetChange() {

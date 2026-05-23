@@ -137,7 +137,9 @@ class BeatmapManipulater {
 		const timingPoints = [];
 		
 		if(options.isDense) {
-			for(let i = startTime; i <= endTime; i = this.getSnapBasedOffsetTime(i, 16)) {
+			const denseSnap = options.denseSnap || 16;
+
+			for(let i = startTime; i <= endTime; i = this.getSnapBasedOffsetTime(i, denseSnap)) {
 				if(i === startTime && options.includingStartTime === false) continue;
 				if(i === endTime && options.includingEndTime === false) continue;
 
@@ -202,7 +204,9 @@ class BeatmapManipulater {
 			endTime = this.getSnapBasedOffsetTime(endTime, -16);
 		}
 
-		const timingPoints = this.beatmap.getTimingPointsInRange(startTime, endTime, options.includingStartTime, options.includingEndTime);
+		const timingPoints = this.beatmap
+			.getTimingPointsInRange(startTime, endTime, options.includingStartTime, options.includingEndTime)
+			.filter(timingPoint => timingPoint.uninherited === 0);
 
 		for(let i in timingPoints) {
 			const timingPoint = timingPoints[i];
@@ -221,7 +225,9 @@ class BeatmapManipulater {
 			endTime = this.getSnapBasedOffsetTime(endTime, -16);
 		}
 
-		const timingPoints = this.beatmap.getTimingPointsOutRange(startTime, endTime, options.includingStartTime, options.includingEndTime);
+		const timingPoints = this.beatmap.timingPoints.filter(timingPoint => {
+			return timingPoint.uninherited !== 0 || !between(timingPoint.time, startTime, endTime, options.includingStartTime, options.includingEndTime);
+		});
 
 		this.beatmap.replaceTimingPoints(timingPoints);
 		this.beatmap.write();

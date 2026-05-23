@@ -403,6 +403,40 @@ describe('Beatmap Module Unit Test', () => {
 			});
 		});
 
+		test('Overwrite (Dense 1/8 Snap)', () => {
+			const startTime = mockBeatmap.hitObjects[0].time;
+			const endTime = mockBeatmap.hitObjects[1].time;
+			const options = {
+				startVelocity: 1.0,
+				startVolume: 100,
+				endVelocity: 1.0,
+				endVolume: 100,
+				includingStartTime: true,
+				includingEndTime: true,
+				isKiai: false,
+				isDense: true,
+				denseSnap: 8,
+				isOffset: false,
+				isOffsetPrecise: false,
+				isExponential: false,
+				isIgnoreVelocity: false,
+				isIgnoreVolume: false,
+				isBackup: false
+			};
+			const expectedTimingPointTimes = [];
+
+			for(let i = startTime; i <= endTime; i = mockBeatmapManipulater.getSnapBasedOffsetTime(i, 8)) {
+				expectedTimingPointTimes.push(i);
+			}
+
+			mockBeatmapManipulater.overwrite(startTime, endTime, options);
+
+			const modifiedBeatmap = new Beatmap(mockBeatmapPath);
+			const addedTimingPoints = modifiedBeatmap.getTimingPointsInRange(startTime, endTime);
+
+			expect(addedTimingPoints.map(timingPoint => timingPoint.time)).toEqual(expectedTimingPointTimes);
+		});
+
 		test('Modify', () => {
 			const startTime = mockBeatmap.timingPoints[1].time;
 			const endTime = mockBeatmap.timingPoints.slice(-1)[0].time;
@@ -419,6 +453,37 @@ describe('Beatmap Module Unit Test', () => {
 			});
 		});
 
+		test('Modify Inherited Timing Points Only', () => {
+			const startTime = mockBeatmap.timingPoints[0].time;
+			const endTime = mockBeatmap.timingPoints.slice(-1)[0].time;
+			const uninheritedTimingPoints = mockBeatmap.timingPoints
+				.filter(timingPoint => timingPoint.uninherited === 1)
+				.map(timingPoint => timingPoint.toString());
+
+			mockBeatmapManipulater.modify(startTime, endTime, {
+				startVelocity: 2.0,
+				startVolume: 25,
+				endVelocity: 2.0,
+				endVolume: 25,
+				includingStartTime: true,
+				includingEndTime: true,
+				isKiai: true,
+				isOffset: false,
+				isOffsetPrecise: false,
+				isExponential: false,
+				isIgnoreVelocity: false,
+				isIgnoreVolume: false,
+				isBackup: false
+			});
+
+			const modifiedBeatmap = new Beatmap(mockBeatmapPath);
+			const modifiedUninheritedTimingPoints = modifiedBeatmap.timingPoints
+				.filter(timingPoint => timingPoint.uninherited === 1)
+				.map(timingPoint => timingPoint.toString());
+
+			expect(modifiedUninheritedTimingPoints).toEqual(uninheritedTimingPoints);
+		});
+
 		test('Remove', () => {
 			const startTime = mockBeatmap.timingPoints[1].time;
 			const endTime = mockBeatmap.timingPoints.slice(-1)[0].time;
@@ -433,6 +498,26 @@ describe('Beatmap Module Unit Test', () => {
 
 				// TODO. Do the comparison
 			});
+		});
+
+		test('Remove Inherited Timing Points Only', () => {
+			const startTime = mockBeatmap.timingPoints[0].time;
+			const endTime = mockBeatmap.timingPoints.slice(-1)[0].time;
+			const uninheritedTimingPoints = mockBeatmap.timingPoints
+				.filter(timingPoint => timingPoint.uninherited === 1)
+				.map(timingPoint => timingPoint.toString());
+
+			mockBeatmapManipulater.remove(startTime, endTime, {
+				includingStartTime: true,
+				includingEndTime: true,
+				isOffset: false,
+				isOffsetPrecise: false,
+				isBackup: false
+			});
+
+			const modifiedBeatmap = new Beatmap(mockBeatmapPath);
+
+			expect(modifiedBeatmap.timingPoints.map(timingPoint => timingPoint.toString())).toEqual(uninheritedTimingPoints);
 		});
 	});
 });

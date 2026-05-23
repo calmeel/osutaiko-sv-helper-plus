@@ -32,6 +32,7 @@ let $endPointVolume;
 let $endTimeInclude;
 let $optionKiai;
 let $optionDense;
+let $optionDenseEighth;
 let $optionOffset;
 let $optionOffsetPrecise;
 let $optionExponential;
@@ -330,6 +331,33 @@ describe('Front-End Unit Test', () => {
 			expect($optionOffsetPrecise.checked).toBe(false);
 		});
 
+		test('Dense Mode & 1/8 Snap', () => {
+			$optionDense.click();
+
+			expect($optionDense.checked).toBe(true);
+			expect($optionDenseEighth.checked).toBe(false);
+
+			$optionDenseEighth.click();
+
+			expect($optionDense.checked).toBe(true);
+			expect($optionDenseEighth.checked).toBe(true);
+
+			$optionDense.click();
+
+			expect($optionDense.checked).toBe(false);
+			expect($optionDenseEighth.checked).toBe(false);
+
+			$optionDenseEighth.click();
+
+			expect($optionDense.checked).toBe(true);
+			expect($optionDenseEighth.checked).toBe(true);
+
+			$optionDenseEighth.click();
+
+			expect($optionDense.checked).toBe(true);
+			expect($optionDenseEighth.checked).toBe(false);
+		});
+
 		test('Ignore Velocity', () => {
 			$startPointVelocity.value = __VERSION__;
 			$endPointVelocity.value = __VERSION__;
@@ -402,6 +430,7 @@ describe('Front-End Unit Test', () => {
 					endTimeInclude: p.endTimeInclude,
 					optionKiai: p.optionKiai,
 					optionDense: p.optionDense,
+					optionDenseSnap: p.optionDenseSnap,
 					optionOffset: p.optionOffset,
 					optionOffsetPrecise: p.optionOffsetPrecise,
 					optionExponential: p.optionExponential,
@@ -512,6 +541,10 @@ describe('Front-End Integrated Test', () => {
 				p.optionOffset = true;
 			}
 
+			if(p.optionDenseSnap === 8) {
+				p.optionDense = true;
+			}
+
 			if(p.optionIgnoreVelocity) {
 				p.startPointVelocity = '';
 				p.endPointVelocity = '';
@@ -539,6 +572,7 @@ describe('Front-End Integrated Test', () => {
 			expect($endTimeInclude.checked).toBe(p.endTimeInclude);
 			expect($optionKiai.checked).toBe(p.optionKiai);
 			expect($optionDense.checked).toBe(p.optionDense);
+			expect($optionDenseEighth.checked).toBe(p.optionDenseSnap === 8);
 			expect($optionOffset.checked).toBe(p.optionOffset);
 			expect($optionOffsetPrecise.checked).toBe(p.optionOffsetPrecise);
 			expect($optionExponential.checked).toBe(p.optionExponential);
@@ -568,6 +602,7 @@ function render() {
 	$endTimeInclude = document.getElementById('ep_include');
 	$optionKiai = document.getElementById('op_kiai');
 	$optionDense = document.getElementById('op_dense');
+	$optionDenseEighth = document.getElementById('op_dense_eighth');
 	$optionOffset = document.getElementById('op_offset');
 	$optionOffsetPrecise = document.getElementById('op_offset_precise');
 	$optionExponential = document.getElementById('op_exponential');
@@ -596,6 +631,7 @@ function matrix(cb) {
 		endTimeInclude: [ true, [ () => $endTimeInclude.checked = false, false ] ],
 		optionKiai: [ false, [ () => $optionKiai.checked = true, true ] ],
 		optionDense: [ false, [ () => $optionDense.checked = true, true ] ],
+		optionDenseSnap: [ 16, [ () => $optionDenseEighth.checked = true, 8 ] ],
 		optionOffset: [ false, [ () => $optionOffset.checked = true, true ] ],
 		optionOffsetPrecise: [ false, [ () => $optionOffsetPrecise.checked = true, true ] ],
 		optionExponential: [ false, [ () => $optionExponential.checked = true, true ] ],
@@ -638,6 +674,7 @@ function reset() {
 	$endTimeInclude.checked = true;
 	$optionKiai.checked = false;
 	$optionDense.checked = false;
+	$optionDenseEighth.checked = false;
 	$optionOffset.checked = false;
 	$optionOffsetPrecise.checked = false;
 	$optionExponential.checked = false;

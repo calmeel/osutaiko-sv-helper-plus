@@ -10,7 +10,7 @@ class Main {
 	constructor() {
 		this.win = new BrowserWindow({
 			width: 404,
-			height: 520,
+			height: 540,
 			maximizable: false,
 			fullscreenable: false,
 			resizable: false,
@@ -83,6 +83,7 @@ class Main {
 			endTimeInclude,
 			optionKiai,
 			optionDense,
+			optionDenseSnap,
 			optionOffset,
 			optionOffsetPrecise,
 			optionExponential,
@@ -137,6 +138,7 @@ class Main {
 				includingEndTime: endTimeInclude,
 				isKiai: optionKiai,
 				isDense: optionDense,
+				denseSnap: optionDenseSnap,
 				isOffset: optionOffset,
 				isOffsetPrecise: optionOffsetPrecise,
 				isExponential: optionExponential,
@@ -293,11 +295,11 @@ class Main {
 	}
 
 	onBasicModeTrigger(e) {
-		this.win.setBounds({ width: 404, height: 520 });
+		this.win.setBounds({ width: 404, height: 540 });
 	}
 
 	onAdvancedModeTrigger(e) {
-		this.win.setBounds({ width: 404, height: 718 });
+		this.win.setBounds({ width: 404, height: 738 });
 	}
 
 	onClose(e) {
