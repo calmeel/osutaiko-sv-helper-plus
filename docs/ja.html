@@ -89,6 +89,30 @@
 		.formula math {
 			font-family: "Cambria Math", "Times New Roman", serif;
 		}
+		.feature-list {
+			display: grid;
+			gap: 10px;
+			margin: 0;
+		}
+		.feature-list > div {
+			display: grid;
+			grid-template-columns: 180px 1fr;
+			gap: 14px;
+			align-items: start;
+		}
+		.feature-list dt {
+			font-weight: 700;
+			color: var(--accent);
+		}
+		.feature-list dd {
+			margin: 0;
+		}
+		@media (max-width: 640px) {
+			.feature-list > div {
+				grid-template-columns: 1fr;
+				gap: 2px;
+			}
+		}
 	</style>
 </head>
 <body>
@@ -97,29 +121,61 @@
 		<p class="muted">フォーク版 plus の説明書です。</p>
 		<nav>
 			<a href="index.html">English</a>
-			<a href="#features">機能の説明</a>
-			<a href="#advanced">詳細モード</a>
-			<a href="#plus">plusで追加した内容</a>
-			<a href="#sv-mode">SVモードの数式</a>
 		</nav>
 	</header>
 	<main>
 		<section id="features">
 			<h2>機能の説明</h2>
-			<ul>
-				<li><strong>譜面</strong>: <code>.osu</code> ファイルを選択、またはドラッグ&ドロップします。</li>
-				<li><strong>開始地点 / 終了地点</strong>: 編集範囲の時刻、SV、音量を入力します。</li>
-				<li><strong>開始地点を含む / 終了地点を含む</strong>: 範囲の端にちょうどあるタイミングポイントを対象に含めるかを指定します。</li>
-				<li><strong>上書き</strong>: 選択範囲内の緑線をすべて削除してから、新しい緑線を作成します。</li>
-				<li><strong>修正</strong>: 選択範囲内にある既存の緑線を修正します。</li>
-				<li><strong>削除</strong>: 選択範囲内にある緑線を削除します。</li>
-				<li><strong>維持</strong>: 入力値を使わず、元の緑線のSVまたは音量を維持します。</li>
-				<li><strong>Dense モード</strong>: 選択した間隔で緑線を密に作成します。間隔は <code>1/16 snap</code>、<code>1/8 snap</code>、<code>1/4 snap</code> から選択できます。</li>
-				<li><strong>-1/16 Offset モード</strong>: 生成するSV線を対象の少し前に置きます。三連系のノーツでは自動的に <code>-1/12 snap</code> が使われる場合があります。</li>
-				<li><strong>SVモード</strong>: 開始値から終了値まで、SVや音量をどのカーブで変化させるかを選びます。</li>
-				<li><strong>バックアップ</strong>: 適用前にバックアップを作成します。</li>
-				<li><strong>言語 / 説明書</strong>: UIは日本語と英語を切り替えられます。前回の言語設定は次回起動時にも引き継がれ、上部の説明書リンクからこのページを開けます。</li>
-			</ul>
+			<dl class="feature-list">
+				<div>
+					<dt>譜面</dt>
+					<dd><code>.osu</code> ファイルを選択、またはドラッグ&ドロップします。</dd>
+				</div>
+				<div>
+					<dt>開始地点 / 終了地点</dt>
+					<dd>編集範囲の時刻、SV、音量を入力します。</dd>
+				</div>
+				<div>
+					<dt>開始地点を含む / 終了地点を含む</dt>
+					<dd>範囲の端にちょうどあるタイミングポイントを対象に含めるかを指定します。</dd>
+				</div>
+				<div>
+					<dt>上書き</dt>
+					<dd>選択範囲内の緑線をすべて削除してから、新しい緑線を作成します。</dd>
+				</div>
+				<div>
+					<dt>修正</dt>
+					<dd>選択範囲内にある既存の緑線を修正します。</dd>
+				</div>
+				<div>
+					<dt>削除</dt>
+					<dd>選択範囲内にある緑線を削除します。</dd>
+				</div>
+				<div>
+					<dt>維持</dt>
+					<dd>入力値を使わず、元の緑線のSVまたは音量を維持します。</dd>
+				</div>
+				<div>
+					<dt>Dense モード</dt>
+					<dd>選択した間隔で緑線を密に作成します。間隔は <code>1/16 snap</code>、<code>1/8 snap</code>、<code>1/4 snap</code> から選択できます。</dd>
+				</div>
+				<div>
+					<dt>-1/16 Offset モード</dt>
+					<dd>生成するSV線を対象の少し前に置きます。1/12 snap が含まれる場合は、周辺ノーツにも <code>-1/12 offset</code> が適用されます。音量変化を伴うSV設置を行う際は、このモードをオンにすることを推奨します。</dd>
+				</div>
+				<div>
+					<dt>SVモード</dt>
+					<dd>開始値から終了値まで、SVや音量をどのカーブで変化させるかを選びます。</dd>
+				</div>
+				<div>
+					<dt>バックアップ</dt>
+					<dd>チェックをオンにすると、適用前にローカルフォルダ内へバックアップフォルダを作成し、変更前の <code>.osu</code> ファイルを保存します。<strong>バックアップを開く</strong> ボタンから保存先を確認できます。元に戻したい場合は、指定日時のファイル名になっている <code>.osu</code> ファイルの中身を、元の譜面ファイルへコピー&ペーストしてください。</dd>
+				</div>
+				<div>
+					<dt>言語 / 説明書</dt>
+					<dd>UIは日本語と英語を切り替えられます。前回の言語設定は次回起動時にも引き継がれ、上部の説明書リンクからこのページを開けます。</dd>
+				</div>
+			</dl>
 		</section>
 
 		<section id="advanced">
@@ -140,11 +196,11 @@
 				<li><code>上書き</code> は本当の上書きとして動作します。選択範囲内の緑線をすべて削除してから、新しい緑線を作成します。赤線は変更されません。</li>
 				<li>通常の上書きでは、小節線上にもSV線を作成します。小節線は赤線の <code>beatLength * meter</code> から計算し、最終的な時刻は小数点以下を切り捨てます。</li>
 				<li>Dense モードは <code>1/16 snap</code>、<code>1/8 snap</code>、<code>1/4 snap</code> に対応しています。</li>
-				<li><code>-1/16 Offset モード</code> には、三連系ノーツ向けの自動 <code>-1/12 snap</code> 処理が含まれます。それ以外のノーツと小節線は <code>-1/16 snap</code> を使います。</li>
+				<li><code>-1/16 Offset モード</code> には、1/12 snap が含まれる場合に周辺ノーツにも <code>-1/12 offset</code> を適用する処理が含まれます。それ以外のノーツと小節線は <code>-1/16 offset</code> を使います。</li>
 				<li>Kiai オプションを削除しました。上書きでは開始地点のKiai/effectsを継承し、修正では各緑線の元のeffectsを維持します。</li>
 				<li>SVと音量を個別に維持できる小さな <code>維持</code> チェックボックスを追加しました。</li>
 				<li>音量の入力範囲を <code>5</code> から <code>100</code> に制限しました。</li>
-				<li>旧 Exponential チェックボックスを <code>SVモード</code> プルダウンに置き換えました。</li>
+				<li><code>SVモード</code> プルダウンを実装しました。デフォルトの挙動は <code>Linear / 等差</code> で、旧来の Exponential チェックボックスの挙動は <code>Cubic In / 加速カーブ</code> として選択できます。固定制御点のベジェモードとして <code>Bezier In-Out</code> と <code>Bezier Out-In</code> も選択できます。</li>
 				<li>日本語と英語のUIに対応し、選択した言語は次回起動時にも維持されます。</li>
 				<li>アプリ上部に説明書リンクを追加しました。</li>
 				<li>GitHub Releases を最大24時間に1回確認し、新しいバージョンがある場合にお知らせします。</li>
@@ -170,7 +226,9 @@
 					<mn>0</mn><mo>&le;</mo><mi>t</mi><mo>&le;</mo><mn>1</mn>
 				</math>
 			</div>
-			<img src="assets/sv-curves.svg" alt="SVモードの代表的なカーブグラフ">
+			<p>すべてのモードは <code>s</code> から <code>e</code> へ補間します。開始値と終了値が同じ場合は、Bezier モードを含めて全区間で同じ値になります。Bezier モードの制御点は固定で、アプリ内からは編集できません。</p>
+			<img src="assets/sv-curves.svg" alt="Linear、Ratio、Cubic、Sine SVモードの代表的なカーブグラフ">
+			<img src="assets/sv-bezier-curves.svg" alt="Linearと比較したBezier SVモードの代表的なカーブグラフ">
 			<table>
 				<thead>
 					<tr><th>モード</th><th>数式</th><th>変化の特徴</th></tr>
@@ -205,6 +263,16 @@
 						<td>Sine Out / 減速カーブ</td>
 						<td><math><mi>value</mi><mo stretchy="false">(</mo><mi>t</mi><mo stretchy="false">)</mo><mo>=</mo><mi>s</mi><mo>+</mo><mi>sin</mi><mo stretchy="false">(</mo><mfrac><mrow><mi>t</mi><mi>&pi;</mi></mrow><mn>2</mn></mfrac><mo stretchy="false">)</mo><mo stretchy="false">(</mo><mi>e</mi><mo>-</mo><mi>s</mi><mo stretchy="false">)</mo></math></td>
 						<td>サインカーブでなめらかに減速します。</td>
+					</tr>
+					<tr>
+						<td>Bezier In-Out</td>
+						<td><math><mi>value</mi><mo stretchy="false">(</mo><mi>t</mi><mo stretchy="false">)</mo><mo>=</mo><mi>s</mi><mo>+</mo><mo stretchy="false">(</mo><mn>0.30</mn><msup><mrow><mo stretchy="false">(</mo><mn>1</mn><mo>-</mo><mi>t</mi><mo stretchy="false">)</mo></mrow><mn>2</mn></msup><mi>t</mi><mo>+</mo><mn>2.70</mn><mo stretchy="false">(</mo><mn>1</mn><mo>-</mo><mi>t</mi><mo stretchy="false">)</mo><msup><mi>t</mi><mn>2</mn></msup><mo>+</mo><msup><mi>t</mi><mn>3</mn></msup><mo stretchy="false">)</mo><mo stretchy="false">(</mo><mi>e</mi><mo>-</mo><mi>s</mi><mo stretchy="false">)</mo></math></td>
+						<td>制御値 <code>0.10</code> と <code>0.90</code> を使う固定ベジェカーブです。両端はゆっくり、中間付近で速く変化します。</td>
+					</tr>
+					<tr>
+						<td>Bezier Out-In</td>
+						<td><math><mi>value</mi><mo stretchy="false">(</mo><mi>t</mi><mo stretchy="false">)</mo><mo>=</mo><mi>s</mi><mo>+</mo><mo stretchy="false">(</mo><mn>2.70</mn><msup><mrow><mo stretchy="false">(</mo><mn>1</mn><mo>-</mo><mi>t</mi><mo stretchy="false">)</mo></mrow><mn>2</mn></msup><mi>t</mi><mo>+</mo><mn>0.30</mn><mo stretchy="false">(</mo><mn>1</mn><mo>-</mo><mi>t</mi><mo stretchy="false">)</mo><msup><mi>t</mi><mn>2</mn></msup><mo>+</mo><msup><mi>t</mi><mn>3</mn></msup><mo stretchy="false">)</mo><mo stretchy="false">(</mo><mi>e</mi><mo>-</mo><mi>s</mi><mo stretchy="false">)</mo></math></td>
+						<td>制御値 <code>0.90</code> と <code>0.10</code> を使う固定ベジェカーブです。両端で速く、中間付近はゆるやかに変化します。</td>
 					</tr>
 				</tbody>
 			</table>

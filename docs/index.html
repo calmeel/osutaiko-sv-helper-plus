@@ -89,6 +89,30 @@
 		.formula math {
 			font-family: "Cambria Math", "Times New Roman", serif;
 		}
+		.feature-list {
+			display: grid;
+			gap: 10px;
+			margin: 0;
+		}
+		.feature-list > div {
+			display: grid;
+			grid-template-columns: 180px 1fr;
+			gap: 14px;
+			align-items: start;
+		}
+		.feature-list dt {
+			font-weight: 700;
+			color: var(--accent);
+		}
+		.feature-list dd {
+			margin: 0;
+		}
+		@media (max-width: 640px) {
+			.feature-list > div {
+				grid-template-columns: 1fr;
+				gap: 2px;
+			}
+		}
 	</style>
 </head>
 <body>
@@ -97,29 +121,61 @@
 		<p class="muted">A guide for the forked plus version.</p>
 		<nav>
 			<a href="ja.html">日本語</a>
-			<a href="#features">Features</a>
-			<a href="#advanced">Advanced Mode</a>
-			<a href="#plus">Plus Changes</a>
-			<a href="#sv-mode">SV Mode Formulas</a>
 		</nav>
 	</header>
 	<main>
 		<section id="features">
 			<h2>Features</h2>
-			<ul>
-				<li><strong>Beatmap</strong>: select or drag and drop a <code>.osu</code> file.</li>
-				<li><strong>Start Point / End Point</strong>: enter the time, Slider Velocity, and Volume for the edit range.</li>
-				<li><strong>Include Start Time / Include End Time</strong>: choose whether timing points exactly on the range edges are included.</li>
-				<li><strong>Overwrite</strong>: removes all inherited timing points in the selected range, then creates new inherited timing points.</li>
-				<li><strong>Modify</strong>: modifies existing inherited timing points in the selected range.</li>
-				<li><strong>Remove</strong>: removes inherited timing points in the selected range.</li>
-				<li><strong>Keep</strong>: keeps the original inherited Velocity or Volume instead of applying the input value.</li>
-				<li><strong>Dense Mode</strong>: creates dense inherited timing points at <code>1/16 snap</code>, <code>1/8 snap</code>, or <code>1/4 snap</code>.</li>
-				<li><strong>-1/16 Offset Mode</strong>: places generated SV points slightly before the target object. Triplet-style hit objects may automatically use <code>-1/12 snap</code>.</li>
-				<li><strong>SV Mode</strong>: selects how Velocity and Volume move from the start value to the end value.</li>
-				<li><strong>Backup</strong>: creates a backup before applying changes.</li>
-				<li><strong>Language / Manual</strong>: the app can switch between English and Japanese, remembers the last language, and opens this manual from the title bar.</li>
-			</ul>
+			<dl class="feature-list">
+				<div>
+					<dt>Beatmap</dt>
+					<dd>Select or drag and drop a <code>.osu</code> file.</dd>
+				</div>
+				<div>
+					<dt>Start Point / End Point</dt>
+					<dd>Enter the time, Slider Velocity, and Volume for the edit range.</dd>
+				</div>
+				<div>
+					<dt>Include Start Time / Include End Time</dt>
+					<dd>Choose whether timing points exactly on the range edges are included.</dd>
+				</div>
+				<div>
+					<dt>Overwrite</dt>
+					<dd>Removes all inherited timing points in the selected range, then creates new inherited timing points.</dd>
+				</div>
+				<div>
+					<dt>Modify</dt>
+					<dd>Modifies existing inherited timing points in the selected range.</dd>
+				</div>
+				<div>
+					<dt>Remove</dt>
+					<dd>Removes inherited timing points in the selected range.</dd>
+				</div>
+				<div>
+					<dt>Keep</dt>
+					<dd>Keeps the original inherited Velocity or Volume instead of applying the input value.</dd>
+				</div>
+				<div>
+					<dt>Dense Mode</dt>
+					<dd>Creates dense inherited timing points at <code>1/16 snap</code>, <code>1/8 snap</code>, or <code>1/4 snap</code>.</dd>
+				</div>
+				<div>
+					<dt>-1/16 Offset Mode</dt>
+					<dd>Places generated SV points slightly before the target object. When 1/12 snap notes are present, nearby notes also use a <code>-1/12 offset</code>. This mode is recommended when placing SV points with volume changes.</dd>
+				</div>
+				<div>
+					<dt>SV Mode</dt>
+					<dd>Selects how Velocity and Volume move from the start value to the end value.</dd>
+				</div>
+				<div>
+					<dt>Backup</dt>
+					<dd>When enabled, the app creates a backup folder in the local app folder and saves the original <code>.osu</code> file before applying changes. Use the <strong>Open Backup Folder</strong> button to view the backups. To restore a file, open the dated <code>.osu</code> backup file and copy its contents back into the original beatmap file.</dd>
+				</div>
+				<div>
+					<dt>Language / Manual</dt>
+					<dd>The app can switch between English and Japanese, remembers the last language, and opens this manual from the title bar.</dd>
+				</div>
+			</dl>
 		</section>
 
 		<section id="advanced">
@@ -140,11 +196,11 @@
 				<li><code>Overwrite</code> is now a true overwrite. It removes all green lines inside the selected range before creating new ones. Red lines are preserved.</li>
 				<li>Normal Overwrite also creates SV points on barlines. Barline positions are calculated from red lines using <code>beatLength * meter</code>, and the final timestamp is floored.</li>
 				<li>Dense Mode supports <code>1/16 snap</code>, <code>1/8 snap</code>, and <code>1/4 snap</code>.</li>
-				<li><code>-1/16 Offset Mode</code> includes automatic <code>-1/12 snap</code> handling for triplet-style hit objects. Other hit objects and barlines use <code>-1/16 snap</code>.</li>
+				<li><code>-1/16 Offset Mode</code> includes handling for 1/12 snap patterns: when 1/12 snap notes are present, nearby notes also use a <code>-1/12 offset</code>. Other hit objects and barlines use a <code>-1/16 offset</code>.</li>
 				<li>The Kiai option was removed. Overwrite inherits Kiai/effects from the start point. Modify keeps each timing point's original effects.</li>
 				<li>Velocity and Volume can be kept independently with small <code>Keep</code> checkboxes.</li>
 				<li>Volume input is limited to <code>5</code> through <code>100</code>.</li>
-				<li>The old Exponential checkbox was replaced with an <code>SV Mode</code> selector.</li>
+				<li>Added the <code>SV Mode</code> selector. The default behavior is <code>Linear</code>, and the old Exponential checkbox behavior is now available as <code>Cubic In / Accelerate Curve</code>. <code>Bezier In-Out</code> and <code>Bezier Out-In</code> are also available as fixed-control-point Bezier modes.</li>
 				<li>The app supports English and Japanese UI text, and the selected language is kept for the next launch.</li>
 				<li>The title bar includes a Manual link that opens this documentation.</li>
 				<li>The app checks GitHub Releases at most once every 24 hours and shows a notice when a newer version is available.</li>
@@ -170,7 +226,9 @@
 					<mn>0</mn><mo>&le;</mo><mi>t</mi><mo>&le;</mo><mn>1</mn>
 				</math>
 			</div>
-			<img src="assets/sv-curves.svg" alt="Representative graph of SV mode curves">
+			<p>All modes interpolate from <code>s</code> to <code>e</code>. If the start and end values are the same, the value stays constant for the whole range, including the Bezier modes. The Bezier modes use fixed control points; they cannot be edited in the app.</p>
+			<img src="assets/sv-curves.svg" alt="Representative graph of Linear, Ratio, Cubic, and Sine SV mode curves">
+			<img src="assets/sv-bezier-curves.svg" alt="Representative graph of Bezier SV mode curves compared with Linear">
 			<table>
 				<thead>
 					<tr><th>Mode</th><th>Formula</th><th>Shape</th></tr>
@@ -205,6 +263,16 @@
 						<td>Sine Out / Decelerate Curve</td>
 						<td><math><mi>value</mi><mo stretchy="false">(</mo><mi>t</mi><mo stretchy="false">)</mo><mo>=</mo><mi>s</mi><mo>+</mo><mi>sin</mi><mo stretchy="false">(</mo><mfrac><mrow><mi>t</mi><mi>&pi;</mi></mrow><mn>2</mn></mfrac><mo stretchy="false">)</mo><mo stretchy="false">(</mo><mi>e</mi><mo>-</mo><mi>s</mi><mo stretchy="false">)</mo></math></td>
 						<td>Smooth deceleration.</td>
+					</tr>
+					<tr>
+						<td>Bezier In-Out</td>
+						<td><math><mi>value</mi><mo stretchy="false">(</mo><mi>t</mi><mo stretchy="false">)</mo><mo>=</mo><mi>s</mi><mo>+</mo><mo stretchy="false">(</mo><mn>0.30</mn><msup><mrow><mo stretchy="false">(</mo><mn>1</mn><mo>-</mo><mi>t</mi><mo stretchy="false">)</mo></mrow><mn>2</mn></msup><mi>t</mi><mo>+</mo><mn>2.70</mn><mo stretchy="false">(</mo><mn>1</mn><mo>-</mo><mi>t</mi><mo stretchy="false">)</mo><msup><mi>t</mi><mn>2</mn></msup><mo>+</mo><msup><mi>t</mi><mn>3</mn></msup><mo stretchy="false">)</mo><mo stretchy="false">(</mo><mi>e</mi><mo>-</mo><mi>s</mi><mo stretchy="false">)</mo></math></td>
+						<td>Fixed Bezier curve with control values <code>0.10</code> and <code>0.90</code>. Slow at both ends and faster near the middle.</td>
+					</tr>
+					<tr>
+						<td>Bezier Out-In</td>
+						<td><math><mi>value</mi><mo stretchy="false">(</mo><mi>t</mi><mo stretchy="false">)</mo><mo>=</mo><mi>s</mi><mo>+</mo><mo stretchy="false">(</mo><mn>2.70</mn><msup><mrow><mo stretchy="false">(</mo><mn>1</mn><mo>-</mo><mi>t</mi><mo stretchy="false">)</mo></mrow><mn>2</mn></msup><mi>t</mi><mo>+</mo><mn>0.30</mn><mo stretchy="false">(</mo><mn>1</mn><mo>-</mo><mi>t</mi><mo stretchy="false">)</mo><msup><mi>t</mi><mn>2</mn></msup><mo>+</mo><msup><mi>t</mi><mn>3</mn></msup><mo stretchy="false">)</mo><mo stretchy="false">(</mo><mi>e</mi><mo>-</mo><mi>s</mi><mo stretchy="false">)</mo></math></td>
+						<td>Fixed Bezier curve with control values <code>0.90</code> and <code>0.10</code>. Fast at both ends and flatter near the middle.</td>
 					</tr>
 				</tbody>
 			</table>

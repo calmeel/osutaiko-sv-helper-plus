@@ -1,6 +1,6 @@
 <svg xmlns="http://www.w3.org/2000/svg" width="900" height="560" viewBox="0 0 900 560" role="img" aria-labelledby="title desc">
-  <title id="title">SV mode curve comparison</title>
-  <desc id="desc">Representative normalized curves for Linear, Ratio, Cubic In, Cubic Out, Sine In, and Sine Out.</desc>
+  <title id="title">Bezier SV mode curve comparison</title>
+  <desc id="desc">Representative normalized curves for Linear, Bezier In-Out, and Bezier Out-In.</desc>
   <rect width="900" height="560" fill="#21171c"/>
   <rect x="52" y="40" width="796" height="460" rx="8" fill="#2e1f25" stroke="#5a3a47"/>
   <g stroke="#5a3a47" stroke-width="1">
@@ -25,36 +25,21 @@
   </g>
   <g fill="none" stroke-linecap="round" stroke-linejoin="round" stroke-width="5">
     <path d="M130 410 L780 90" stroke="#ffffff" opacity=".7"/>
-    <path d="M130 410 C307 384 524 267 780 90" stroke="#ffb000"/>
-    <path d="M130 410 C366 410 563 355 780 90" stroke="#ff66ab"/>
-    <path d="M130 410 C347 145 543 90 780 90" stroke="#58d68d"/>
-    <path d="M130 410 C291 410 518 291 780 90" stroke="#8fd3ff"/>
-    <path d="M130 410 C337 190 559 90 780 90" stroke="#b48cff"/>
+    <path d="M130 410 L163 404 L195 394 L228 382 L260 368 L293 351 L325 333 L358 313 L390 293 L423 272 L455 250 L488 228 L520 207 L553 187 L585 167 L618 149 L650 132 L683 118 L715 106 L748 96 L780 90" stroke="#ff8fd4"/>
+    <path d="M130 410 L163 371 L195 339 L228 313 L260 294 L293 279 L325 268 L358 261 L390 256 L423 253 L455 250 L488 247 L520 244 L553 239 L585 232 L618 221 L650 206 L683 187 L715 161 L748 129 L780 90" stroke="#b6ff6a"/>
   </g>
   <g font-family="Arial, sans-serif" font-size="16">
-    <g transform="translate(125 24)">
+    <g transform="translate(200 24)">
       <rect x="0" y="0" width="16" height="5" fill="#ffffff" opacity=".7"/>
       <text x="24" y="8" fill="#d9a6bd">Linear</text>
     </g>
-    <g transform="translate(230 24)">
-      <rect x="0" y="0" width="16" height="5" fill="#ffb000"/>
-      <text x="24" y="8" fill="#d9a6bd">Ratio</text>
+    <g transform="translate(350 24)">
+      <rect x="0" y="0" width="16" height="5" fill="#ff8fd4"/>
+      <text x="24" y="8" fill="#d9a6bd">Bezier In-Out</text>
     </g>
-    <g transform="translate(330 24)">
-      <rect x="0" y="0" width="16" height="5" fill="#ff66ab"/>
-      <text x="24" y="8" fill="#d9a6bd">Cubic In</text>
-    </g>
-    <g transform="translate(465 24)">
-      <rect x="0" y="0" width="16" height="5" fill="#58d68d"/>
-      <text x="24" y="8" fill="#d9a6bd">Cubic Out</text>
-    </g>
-    <g transform="translate(615 24)">
-      <rect x="0" y="0" width="16" height="5" fill="#8fd3ff"/>
-      <text x="24" y="8" fill="#d9a6bd">Sine In</text>
-    </g>
-    <g transform="translate(735 24)">
-      <rect x="0" y="0" width="16" height="5" fill="#b48cff"/>
-      <text x="24" y="8" fill="#d9a6bd">Sine Out</text>
+    <g transform="translate(560 24)">
+      <rect x="0" y="0" width="16" height="5" fill="#b6ff6a"/>
+      <text x="24" y="8" fill="#d9a6bd">Bezier Out-In</text>
     </g>
   </g>
 </svg>

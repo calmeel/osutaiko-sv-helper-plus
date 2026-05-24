@@ -264,11 +264,16 @@ describe('Beatmap Module Unit Test', () => {
 				expect(BeatmapManipulater.getTimeInterpolatedValue(i, 0, 100, 1, 2, 'cubicOut')).toBe(1 + (1 - Math.pow(1 - i / 100, 3)));
 				expect(BeatmapManipulater.getTimeInterpolatedValue(i, 0, 100, 1, 2, 'sineIn')).toBe(1 + (1 - Math.cos(((i / 100) * Math.PI) / 2)));
 				expect(BeatmapManipulater.getTimeInterpolatedValue(i, 0, 100, 1, 2, 'sineOut')).toBe(1 + Math.sin(((i / 100) * Math.PI) / 2));
+				expect(BeatmapManipulater.getTimeInterpolatedValue(i, 0, 100, 1, 2, 'bezierInOut')).toBeCloseTo(BeatmapManipulater.getBezierInterpolatedValue(i / 100, 1, 2, 0.10, 0.90));
+				expect(BeatmapManipulater.getTimeInterpolatedValue(i, 0, 100, 1, 2, 'bezierOutIn')).toBeCloseTo(BeatmapManipulater.getBezierInterpolatedValue(i / 100, 1, 2, 0.90, 0.10));
 				expect(BeatmapManipulater.getTimeInterpolatedValue(i, 0, 100, 1, 2, 'cubic')).toBe(1 + Math.pow(i / 100, 3));
 				expect(BeatmapManipulater.getTimeInterpolatedValue(i, 0, 100, 1, 2, 'curveIn')).toBe(1 + Math.pow(i / 100, 3));
 				expect(BeatmapManipulater.getTimeInterpolatedValue(i, 0, 100, 1, 2, 'curveOut')).toBe(1 + (1 - Math.pow(1 - i / 100, 3)));
 				expect(BeatmapManipulater.getTimeInterpolatedValue(i, 0, 100, 1, 2, true)).toBe(1 + Math.pow(i / 100, 3));
 			}
+
+			expect(BeatmapManipulater.getTimeInterpolatedValue(50, 0, 100, 1.5, 1.5, 'bezierInOut')).toBe(1.5);
+			expect(BeatmapManipulater.getTimeInterpolatedValue(50, 0, 100, 1.5, 1.5, 'bezierOutIn')).toBe(1.5);
 		});
 
 		test('Next & Previous Navigating', () => {
@@ -623,6 +628,39 @@ describe('Beatmap Module Unit Test', () => {
 
 			expect(inheritedTimingPointTimes).not.toContain(orphanInheritedTimingPoint.time);
 			expect(uninheritedTimingPointTimes).toContain(uninheritedTimingPoint.time);
+		});
+
+		test('Overwrite Preserves End Time Inherited Timing Point When End Time Is Excluded', () => {
+			const startTime = mockBeatmap.hitObjects[0].time;
+			const endTime = mockBeatmap.hitObjects[1].time;
+			const endTimingPoint = new TimingPoint(endTime, -50, 4, 2, 0, 75, 0, 0);
+
+			mockBeatmap.replaceTimingPoints(mockBeatmap.timingPoints.concat([ endTimingPoint ]).sort((a, b) => a.time - b.time));
+			mockBeatmap.write();
+
+			mockBeatmapManipulater = new BeatmapManipulater(mockBeatmapPath);
+			mockBeatmapManipulater.overwrite(startTime, endTime, {
+				startVelocity: 1.0,
+				startVolume: 100,
+				endVelocity: 1.0,
+				endVolume: 100,
+				includingStartTime: true,
+				includingEndTime: false,
+				isDense: false,
+				isOffset: false,
+				isOffsetPrecise: false,
+				svMode: 'linear',
+				isIgnoreVelocity: false,
+				isIgnoreVolume: false,
+				isBackup: false
+			});
+
+			const modifiedBeatmap = new Beatmap(mockBeatmapPath);
+			const inheritedTimingPointTimes = modifiedBeatmap.timingPoints
+				.filter(timingPoint => timingPoint.uninherited === 0)
+				.map(timingPoint => timingPoint.time);
+
+			expect(inheritedTimingPointTimes).toContain(endTime);
 		});
 
 		test('Overwrite Offsets Barline Timing Points', () => {

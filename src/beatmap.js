@@ -168,15 +168,11 @@ class BeatmapManipulater {
 
 		}
 
-		const targetTimes = timingPoints.map(timingPoint => timingPoint.time);
 		const existingTimingPoints = this.beatmap.timingPoints.filter(timingPoint => {
 			if(timingPoint.uninherited !== 0)
 				return true;
 
-			if(between(timingPoint.time, startTime, endTime, options.includingStartTime, options.includingEndTime))
-				return false;
-
-			return !this.constructor.hasTimingPointAround(targetTimes, timingPoint.time, 1);
+			return !between(timingPoint.time, startTime, endTime, options.includingStartTime, options.includingEndTime);
 		});
 
 		this.beatmap.replaceTimingPoints(existingTimingPoints.concat(timingPoints).sort((a, b) => a.time - b.time));
@@ -457,7 +453,21 @@ class BeatmapManipulater {
 		if(mode === 'sineOut')
 			return (Math.sin((progress * Math.PI) / 2) * (eValue - sValue)) + sValue;
 
+		if(mode === 'bezierInOut')
+			return this.getBezierInterpolatedValue(progress, sValue, eValue, 0.10, 0.90);
+
+		if(mode === 'bezierOutIn')
+			return this.getBezierInterpolatedValue(progress, sValue, eValue, 0.90, 0.10);
+
 		return ((((mode === 'cubicIn') ? Math.pow(progress, 3) : progress) * (eValue - sValue)) + sValue);
+	}
+
+	static getBezierInterpolatedValue(progress, sValue, eValue, p1, p2) {
+		const curve = (3 * Math.pow(1 - progress, 2) * progress * p1)
+			+ (3 * (1 - progress) * Math.pow(progress, 2) * p2)
+			+ Math.pow(progress, 3);
+
+		return (curve * (eValue - sValue)) + sValue;
 	}
 
 	static normalizeSvMode(svMode) {
@@ -470,7 +480,7 @@ class BeatmapManipulater {
 		if(svMode === 'curveOut')
 			return 'cubicOut';
 
-		if(svMode === 'ratio' || svMode === 'cubicIn' || svMode === 'cubicOut' || svMode === 'sineIn' || svMode === 'sineOut')
+		if(svMode === 'ratio' || svMode === 'cubicIn' || svMode === 'cubicOut' || svMode === 'sineIn' || svMode === 'sineOut' || svMode === 'bezierInOut' || svMode === 'bezierOutIn')
 			return svMode;
 
 		return 'linear';

@@ -25,7 +25,7 @@ This version is based on the original osu!taiko SV Helper and includes fixes for
 - Offset Mode now includes automatic `1/12` handling for triplet-style hit objects. Hit objects on or near `1/12` snap are offset by `-1/12 snap`; other hit objects and barlines use `-1/16 snap`.
 - Overwrite now removes all inherited timing points within the selected range and then creates new inherited timing points. Uninherited timing points are preserved.
 - Removed the Kiai option. Overwrite inherits Kiai/effects from the start point, and Modify preserves each timing point's existing effects.
-- Replaced the old Exponential checkbox with an `SV Mode` selector.
+- Added an `SV Mode` selector. The old Exponential behavior is available as `Cubic In`, and fixed-control-point Bezier modes are also available.
 - Added small `Keep` checkboxes for velocity and volume. When enabled, the original inherited value is kept instead of using the input value.
 - Volume input now accepts only values from `5` to `100`.
 - Added an update notice. The app checks GitHub Releases at most once every 24 hours and opens the release page only if the user chooses to do so.
