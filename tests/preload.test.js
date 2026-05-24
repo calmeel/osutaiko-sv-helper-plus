@@ -35,6 +35,7 @@ let $endTimeInclude;
 let $optionDense;
 let $optionDenseSnap;
 let $optionOffset;
+let $optionFinisherOnly;
 let $svMode;
 let $optionIgnoreVelocity;
 let $optionIgnoreVolume;
@@ -445,6 +446,7 @@ describe('Front-End Unit Test', () => {
 					optionDense: p.optionDense,
 					optionDenseSnap: p.optionDenseSnap,
 					optionOffset: p.optionOffset,
+					optionFinisherOnly: p.optionFinisherOnly,
 					svMode: p.svMode,
 					optionIgnoreVelocity: p.optionIgnoreVelocity,
 					optionIgnoreVolume: p.optionIgnoreVolume,
@@ -468,6 +470,7 @@ describe('Front-End Unit Test', () => {
 					endPointVolume: p.endPointVolume,
 					endTimeInclude: p.endTimeInclude,
 					optionOffset: p.optionOffset,
+					optionFinisherOnly: p.optionFinisherOnly,
 					svMode: p.svMode,
 					optionIgnoreVelocity: p.optionIgnoreVelocity,
 					optionIgnoreVolume: p.optionIgnoreVolume,
@@ -549,6 +552,10 @@ describe('Front-End Integrated Test', () => {
 				p.optionDense = true;
 			}
 
+			if(p.optionDense) {
+				p.optionFinisherOnly = false;
+			}
+
 			if(p.optionIgnoreVelocity) {
 				p.startPointVelocity = '';
 				p.endPointVelocity = '';
@@ -577,6 +584,7 @@ describe('Front-End Integrated Test', () => {
 			expect($optionDense.checked).toBe(p.optionDense);
 			expect($optionDenseSnap.value).toBe(String(p.optionDenseSnap));
 			expect($optionOffset.checked).toBe(p.optionOffset);
+			expect($optionFinisherOnly.checked).toBe(p.optionFinisherOnly);
 			expect($svMode.value).toBe(p.svMode);
 			expect($optionIgnoreVelocity.checked).toBe(p.optionIgnoreVelocity);
 			expect($optionIgnoreVolume.checked).toBe(p.optionIgnoreVolume);
@@ -607,6 +615,7 @@ function render() {
 	$optionDense = document.getElementById('op_dense');
 	$optionDenseSnap = document.getElementById('op_dense_snap');
 	$optionOffset = document.getElementById('op_offset');
+	$optionFinisherOnly = document.getElementById('op_finisher_only');
 	$svMode = document.getElementById('op_sv_mode');
 	$optionIgnoreVelocity = document.getElementById('op_ignr_velocity');
 	$optionIgnoreVolume = document.getElementById('op_ignr_volume');
@@ -634,6 +643,7 @@ function matrix(cb) {
 		optionDense: [ false, [ () => $optionDense.checked = true, true ] ],
 		optionDenseSnap: [ 16, [ () => { $optionDenseSnap.value = '8'; $optionDenseSnap.dispatchEvent(new Event('change')); }, 8 ], [ () => { $optionDenseSnap.value = '4'; $optionDenseSnap.dispatchEvent(new Event('change')); }, 4 ] ],
 		optionOffset: [ false, [ () => $optionOffset.checked = true, true ] ],
+		optionFinisherOnly: [ false, [ () => $optionFinisherOnly.checked = true, true ] ],
 		svMode: [ 'linear', [ () => $svMode.value = 'sineOut', 'sineOut' ] ],
 		optionIgnoreVelocity: [ false, [ () => $optionIgnoreVelocity.checked = true, true ] ],
 		optionIgnoreVolume: [ false, [ () => $optionIgnoreVolume.checked = true, true ] ],
@@ -675,6 +685,7 @@ function reset() {
 	$optionDense.checked = false;
 	$optionDenseSnap.value = '16';
 	$optionOffset.checked = false;
+	$optionFinisherOnly.checked = false;
 	$svMode.value = 'linear';
 	$optionIgnoreVelocity.checked = false;
 	$optionIgnoreVolume.checked = false;

@@ -24,8 +24,11 @@ This version is based on the original osu!taiko SV Helper and includes fixes for
 - Added automatic SV point creation on barlines when using normal overwrite mode. barline positions are calculated from uninherited timing points, using `beatLength * meter`, and the final timestamp is floored.
 - Offset Mode now includes automatic `1/12` handling for triplet-style hit objects. Hit objects on or near `1/12` snap are offset by `-1/12 snap`; other hit objects and barlines use `-1/16 snap`.
 - Overwrite now removes all inherited timing points within the selected range and then creates new inherited timing points. Uninherited timing points are preserved.
+- Normal Overwrite skips generated inherited timing points that would not change SV, volume, or effects. Dense Mode still places timing points even when the values do not change.
+- Added Finisher Only Mode. Overwrite and Modify can target only big-note/Finisher SV points. When Overwrite changes a Finisher, a restore point is added at the next non-Finisher hit object or barline in the selected range. Finisher Only Mode cannot be combined with Dense Mode.
 - Removed the Kiai option. Overwrite inherits Kiai/effects from the start point, and Modify preserves each timing point's existing effects.
 - Added an `SV Mode` selector. The old Exponential behavior is available as `Cubic In`, and fixed-control-point Bezier modes are also available.
+- Generated SV values are automatically BPM-compensated when the selected range crosses BPM changes. This applies to all SV modes.
 - Added small `Keep` checkboxes for velocity and volume. When enabled, the original inherited value is kept instead of using the input value.
 - Volume input now accepts only values from `5` to `100`.
 - Added an update notice. The app checks GitHub Releases at most once every 24 hours and opens the release page only if the user chooses to do so.

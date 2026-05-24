@@ -137,7 +137,7 @@ class BeatmapManipulater {
 
 		const timingPoints = [];
 		
-		if(options.isDense) {
+		if(options.isDense && !options.isFinisherOnly) {
 			const denseSnap = options.denseSnap || 16;
 
 			for(let i = startTime; i <= endTime; i = this.getSnapBasedOffsetTime(i, denseSnap)) {
@@ -145,12 +145,14 @@ class BeatmapManipulater {
 				if(i === endTime && options.includingEndTime === false) continue;
 
 				const timingPoint = new TimingPoint;
-				timingPoint.beatLength = options.isIgnoreVelocity ? this.getInheritableBeatLength(i) : (-100 / self.getTimeInterpolatedValue(i, startTime, endTime, options.startVelocity, options.endVelocity, options.svMode));
+				timingPoint.beatLength = options.isIgnoreVelocity ? this.getInheritableBeatLength(i) : this.getBeatLengthFromVelocity(self.getTimeInterpolatedValue(i, startTime, endTime, options.startVelocity, options.endVelocity, options.svMode), startTime, i);
 				timingPoint.volume = options.isIgnoreVolume ? this.getInheritableVolume(i) : (Math.round(self.getTimeInterpolatedValue(i, startTime, endTime, options.startVolume, options.endVolume, options.svMode)));
 				timingPoint.time = options.isOffset ? this.getSnapBasedOffsetTime(i, -16) : i;
 				timingPoint.effects = inheritedEffects;
 				timingPoints.push(timingPoint);
 			}
+		} else if(options.isFinisherOnly) {
+			timingPoints.push(...this.getFinisherOnlyOverwriteTimingPoints(startTime, endTime, options, inheritedEffects));
 		} else {
 			const overwriteTargets = this.getOverwriteTargetsInRange(startTime, endTime, options);
 
@@ -158,19 +160,24 @@ class BeatmapManipulater {
 				const overwriteTarget = overwriteTargets[i];
 
 				const timingPoint = new TimingPoint;
-				timingPoint.beatLength = options.isIgnoreVelocity ? this.getInheritableBeatLength(overwriteTarget.baseTime) : (-100 / self.getTimeInterpolatedValue(overwriteTarget.baseTime, startTime, endTime, options.startVelocity, options.endVelocity, options.svMode));
+				timingPoint.beatLength = options.isIgnoreVelocity ? this.getInheritableBeatLength(overwriteTarget.baseTime) : this.getBeatLengthFromVelocity(self.getTimeInterpolatedValue(overwriteTarget.baseTime, startTime, endTime, options.startVelocity, options.endVelocity, options.svMode), startTime, overwriteTarget.baseTime);
 				timingPoint.volume = options.isIgnoreVolume ? this.getInheritableVolume(overwriteTarget.baseTime) : (Math.round(self.getTimeInterpolatedValue(overwriteTarget.baseTime, startTime, endTime, options.startVolume, options.endVolume, options.svMode)));
 				timingPoint.effects = inheritedEffects;
 				timingPoint.time = overwriteTarget.time;
 
-				timingPoints.push(timingPoint);
+				if(!this.isRedundantInheritedTimingPoint(timingPoint, overwriteTarget.baseTime))
+					timingPoints.push(timingPoint);
 			}
 
 		}
 
+		const finisherOnlyTargetTimes = options.isFinisherOnly ? timingPoints.map(timingPoint => timingPoint.time) : [];
 		const existingTimingPoints = this.beatmap.timingPoints.filter(timingPoint => {
 			if(timingPoint.uninherited !== 0)
 				return true;
+
+			if(options.isFinisherOnly)
+				return !this.constructor.hasTimingPointAround(finisherOnlyTargetTimes, timingPoint.time, 1);
 
 			return !between(timingPoint.time, startTime, endTime, options.includingStartTime, options.includingEndTime);
 		});
@@ -202,6 +209,94 @@ class BeatmapManipulater {
 
 			return accumulator;
 		}, []);
+	}
+
+	getFinisherOnlyOverwriteTimingPoints(startTime, endTime, options, inheritedEffects) {
+		const timingPoints = [];
+		const hitObjects = this.beatmap.getHitObjectsInRange(startTime, endTime, options.includingStartTime, options.includingEndTime);
+		const events = hitObjects.map(hitObject => {
+			return {
+				kind: hitObject.isBigNote() ? 'finisher' : 'restore',
+				baseTime: hitObject.time,
+				time: hitObject.isBigNote() ? this.getOverwriteTargetTime(hitObject.time, options, true) : hitObject.time
+			};
+		});
+
+		this.getBarlineTimesInRange(startTime, endTime, options.includingStartTime, options.includingEndTime).forEach(barlineTime => {
+			events.push({
+				kind: 'restore',
+				baseTime: barlineTime,
+				time: barlineTime
+			});
+		});
+
+		let hasActiveFinisherTimingPoint = false;
+		let activeFinisherTimingPoint = null;
+		let lastFinisherBaseTime = null;
+
+		events.sort((a, b) => {
+			if(a.baseTime !== b.baseTime)
+				return a.baseTime - b.baseTime;
+
+			return a.kind === 'finisher' ? -1 : 1;
+		}).forEach(event => {
+			if(event.kind === 'finisher') {
+				const timingPoint = this.createOverwriteTimingPoint(event.baseTime, event.time, startTime, endTime, options, inheritedEffects);
+
+				if(activeFinisherTimingPoint !== null && this.constructor.isSameInheritedTimingPoint(timingPoint, activeFinisherTimingPoint)) {
+					hasActiveFinisherTimingPoint = true;
+					lastFinisherBaseTime = event.baseTime;
+					return;
+				}
+				if(activeFinisherTimingPoint === null && this.isRedundantInheritedTimingPoint(timingPoint, event.baseTime))
+					return;
+
+				timingPoints.push(timingPoint);
+				activeFinisherTimingPoint = timingPoint;
+				hasActiveFinisherTimingPoint = true;
+				lastFinisherBaseTime = event.baseTime;
+				return;
+			}
+
+			if(!hasActiveFinisherTimingPoint)
+				return;
+			if(lastFinisherBaseTime !== null && event.baseTime <= lastFinisherBaseTime)
+				return;
+
+			const restoreTimingPoint = this.createRestoreTimingPoint(event.time);
+
+			if(!this.constructor.hasTimingPointAround(timingPoints.map(timingPoint => timingPoint.time), restoreTimingPoint.time, 1))
+				timingPoints.push(restoreTimingPoint);
+
+			activeFinisherTimingPoint = null;
+			hasActiveFinisherTimingPoint = false;
+			lastFinisherBaseTime = null;
+		});
+
+		return timingPoints;
+	}
+
+	createOverwriteTimingPoint(baseTime, time, startTime, endTime, options, inheritedEffects) {
+		const self = this.constructor;
+		const timingPoint = new TimingPoint;
+
+		timingPoint.beatLength = options.isIgnoreVelocity ? this.getInheritableBeatLength(baseTime) : this.getBeatLengthFromVelocity(self.getTimeInterpolatedValue(baseTime, startTime, endTime, options.startVelocity, options.endVelocity, options.svMode), startTime, baseTime);
+		timingPoint.volume = options.isIgnoreVolume ? this.getInheritableVolume(baseTime) : (Math.round(self.getTimeInterpolatedValue(baseTime, startTime, endTime, options.startVolume, options.endVolume, options.svMode)));
+		timingPoint.effects = inheritedEffects;
+		timingPoint.time = time;
+
+		return timingPoint;
+	}
+
+	createRestoreTimingPoint(time) {
+		const timingPoint = new TimingPoint;
+
+		timingPoint.beatLength = this.getInheritableBeatLength(time);
+		timingPoint.volume = this.getInheritableVolume(time);
+		timingPoint.effects = this.getInheritableEffects(time);
+		timingPoint.time = time;
+
+		return timingPoint;
 	}
 
 	getOverwriteTargetTime(time, options, isHitObject) {
@@ -270,24 +365,44 @@ class BeatmapManipulater {
 
 	modify(startTime, endTime, options) {
 		const self = this.constructor;
+		const finisherOnlyTargetTimes = options.isFinisherOnly ? this.getFinisherOnlyModifyTargetTimes(startTime, endTime, options) : [];
 		
-		if(options.isOffset) {
+		if(options.isOffset && !options.isFinisherOnly) {
 			startTime = this.getSnapBasedOffsetTime(startTime, -16);
 			endTime = this.getSnapBasedOffsetTime(endTime, -16);
+		}
+		if(options.isFinisherOnly && finisherOnlyTargetTimes.length > 0) {
+			startTime = Math.min(startTime, ...finisherOnlyTargetTimes);
+			endTime = Math.max(endTime, ...finisherOnlyTargetTimes);
 		}
 
 		const timingPoints = this.beatmap
 			.getTimingPointsInRange(startTime, endTime, options.includingStartTime, options.includingEndTime)
-			.filter(timingPoint => timingPoint.uninherited === 0);
+			.filter(timingPoint => {
+				if(timingPoint.uninherited !== 0)
+					return false;
+
+				if(options.isFinisherOnly)
+					return this.constructor.hasTimingPointAround(finisherOnlyTargetTimes, timingPoint.time, 1);
+
+				return true;
+			});
 
 		for(let i in timingPoints) {
 			const timingPoint = timingPoints[i];
-			timingPoint.beatLength = options.isIgnoreVelocity ? timingPoint.beatLength : (-100 / self.getTimeInterpolatedValue(timingPoint.time, startTime, endTime, options.startVelocity, options.endVelocity, options.svMode));
+			timingPoint.beatLength = options.isIgnoreVelocity ? timingPoint.beatLength : this.getBeatLengthFromVelocity(self.getTimeInterpolatedValue(timingPoint.time, startTime, endTime, options.startVelocity, options.endVelocity, options.svMode), startTime, timingPoint.time);
 			timingPoint.volume = options.isIgnoreVolume ? timingPoint.volume : (Math.round(self.getTimeInterpolatedValue(timingPoint.time, startTime, endTime, options.startVolume, options.endVolume, options.svMode)));
 		}
 
 		this.beatmap.replaceTimingPoints(this.beatmap.timingPoints);
 		this.beatmap.write();
+	}
+
+	getFinisherOnlyModifyTargetTimes(startTime, endTime, options) {
+		return this.beatmap
+			.getHitObjectsInRange(startTime, endTime, options.includingStartTime, options.includingEndTime)
+			.filter(hitObject => hitObject.isBigNote())
+			.map(hitObject => this.getOverwriteTargetTime(hitObject.time, options, true));
 	}
 
 	remove(startTime, endTime, options) {
@@ -384,6 +499,45 @@ class BeatmapManipulater {
 			return new TimingPoint().effects;
 
 		return timingPoint.effects;
+	}
+
+	getUninheritedBeatLength(time) {
+		const timingPoint = this.findPreviousTimingPoint(time, 1, true);
+
+		if(timingPoint === null)
+			return null;
+
+		return timingPoint.beatLength;
+	}
+
+	getBpmCompensatedVelocity(velocity, referenceTime, targetTime) {
+		const referenceBeatLength = this.getUninheritedBeatLength(referenceTime);
+		const targetBeatLength = this.getUninheritedBeatLength(targetTime);
+
+		if(referenceBeatLength === null || targetBeatLength === null || referenceBeatLength === 0)
+			return velocity;
+
+		return velocity * (targetBeatLength / referenceBeatLength);
+	}
+
+	getBeatLengthFromVelocity(velocity, referenceTime, targetTime) {
+		return -100 / this.getBpmCompensatedVelocity(velocity, referenceTime, targetTime);
+	}
+
+	isRedundantInheritedTimingPoint(timingPoint, compareTime=timingPoint.time) {
+		const inheritedBeatLength = this.getInheritableBeatLength(compareTime);
+		const inheritedVolume = this.getInheritableVolume(compareTime);
+		const inheritedEffects = this.getInheritableEffects(compareTime);
+
+		return Math.abs(timingPoint.beatLength - inheritedBeatLength) < 0.000001
+			&& timingPoint.volume === inheritedVolume
+			&& timingPoint.effects === inheritedEffects;
+	}
+
+	static isSameInheritedTimingPoint(a, b) {
+		return Math.abs(a.beatLength - b.beatLength) < 0.000001
+			&& a.volume === b.volume
+			&& a.effects === b.effects;
 	}
 
 	getDecimalTimingData(time) {

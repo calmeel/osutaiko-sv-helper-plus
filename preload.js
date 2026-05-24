@@ -26,15 +26,16 @@ const I18N = {
 		options: 'Options',
 		denseMode: 'Dense Mode',
 		offsetMode: '-1/16 Offset Mode',
+		finisherOnlyMode: 'Finisher Only Mode',
 		svMode: 'SV Mode',
 		svLinear: 'Linear',
 		svRatio: 'Ratio',
 		svCubicIn: 'Cubic In / Accelerate Curve',
 		svCubicOut: 'Cubic Out / Decelerate Curve',
-		svSineIn: 'Sine In / Accelerate Curve',
-		svSineOut: 'Sine Out / Decelerate Curve',
-		svBezierInOut: 'Bezier In-Out',
-		svBezierOutIn: 'Bezier Out-In',
+		svSineIn: 'Sine In / Smooth Accelerate Curve',
+		svSineOut: 'Sine Out / Smooth Decelerate Curve',
+		svBezierInOut: 'Bezier In-Out / Accelerate-Decelerate Curve',
+		svBezierOutIn: 'Bezier Out-In / Decelerate-Accelerate Curve',
 		backup: 'Backup',
 		overwrite: 'Overwrite',
 		modify: 'Modify',
@@ -65,15 +66,16 @@ const I18N = {
 		options: 'オプション',
 		denseMode: 'Dense モード',
 		offsetMode: '-1/16 Offset モード',
+		finisherOnlyMode: 'Finisher のみモード',
 		svMode: 'SVモード',
 		svLinear: 'Linear / 等差',
 		svRatio: 'Ratio / 等比',
 		svCubicIn: 'Cubic In / 加速カーブ',
 		svCubicOut: 'Cubic Out / 減速カーブ',
-		svSineIn: 'Sine In / 加速カーブ',
-		svSineOut: 'Sine Out / 減速カーブ',
-		svBezierInOut: 'Bezier In-Out',
-		svBezierOutIn: 'Bezier Out-In',
+		svSineIn: 'Sine In / なだらかな加速カーブ',
+		svSineOut: 'Sine Out / なだらかな減速カーブ',
+		svBezierInOut: 'Bezier In-Out / 加速-減速カーブ',
+		svBezierOutIn: 'Bezier Out-In / 減速-加速カーブ',
 		backup: 'バックアップ',
 		overwrite: '上書き',
 		modify: '修正',
@@ -302,6 +304,7 @@ window.addEventListener('DOMContentLoaded', () => {
 	const $optionDense = document.getElementById('op_dense');
 	const $optionDenseSnap = document.getElementById('op_dense_snap');
 	const $optionOffset = document.getElementById('op_offset');
+	const $optionFinisherOnly = document.getElementById('op_finisher_only');
 	const $svMode = document.getElementById('op_sv_mode');
 	const $optionIgnoreVelocity = document.getElementById('op_ignr_velocity');
 	const $optionIgnoreVolume = document.getElementById('op_ignr_volume');
@@ -329,6 +332,7 @@ window.addEventListener('DOMContentLoaded', () => {
 
 	$optionDense.addEventListener('change', onDenseChange);
 	$optionDenseSnap.addEventListener('change', onDenseSnapChange);
+	$optionFinisherOnly.addEventListener('change', onFinisherOnlyChange);
 	$optionIgnoreVelocity.addEventListener('change', onIgnoreVelocityChange);
 	$optionIgnoreVolume.addEventListener('change', onIgnoreVolumeChange);
 
@@ -413,6 +417,7 @@ window.addEventListener('DOMContentLoaded', () => {
 			optionDense: d.optionDense,
 			optionDenseSnap: d.optionDenseSnap,
 			optionOffset: d.optionOffset,
+			optionFinisherOnly: d.optionFinisherOnly,
 			svMode: d.svMode,
 			optionIgnoreVelocity: d.optionIgnoreVelocity,
 			optionIgnoreVolume: d.optionIgnoreVolume,
@@ -435,6 +440,7 @@ window.addEventListener('DOMContentLoaded', () => {
 			endPointVolume: d.endPointVolume,
 			endTimeInclude: d.endTimeInclude,
 			optionOffset: d.optionOffset,
+			optionFinisherOnly: d.optionFinisherOnly,
 			svMode: d.svMode,
 			optionIgnoreVelocity: d.optionIgnoreVelocity,
 			optionIgnoreVolume: d.optionIgnoreVolume,
@@ -478,6 +484,7 @@ window.addEventListener('DOMContentLoaded', () => {
 		const optionDense = $optionDense.checked;
 		const optionDenseSnap = parseInt($optionDenseSnap.value);
 		const optionOffset = $optionOffset.checked;
+		const optionFinisherOnly = $optionFinisherOnly.checked;
 		const svMode = $svMode.value;
 		const optionIgnoreVelocity = $optionIgnoreVelocity.checked;
 		const optionIgnoreVolume = $optionIgnoreVolume.checked;
@@ -496,6 +503,7 @@ window.addEventListener('DOMContentLoaded', () => {
 			optionDense,
 			optionDenseSnap,
 			optionOffset,
+			optionFinisherOnly,
 			svMode,
 			optionIgnoreVelocity,
 			optionIgnoreVolume,
@@ -517,6 +525,7 @@ window.addEventListener('DOMContentLoaded', () => {
 		$optionDense.checked = datas.optionDense;
 		$optionDenseSnap.value = normalizeDenseSnap(datas.optionDenseSnap);
 		$optionOffset.checked = datas.optionOffset;
+		$optionFinisherOnly.checked = datas.optionFinisherOnly;
 		$svMode.value = normalizeSvMode(datas.svMode || (datas.optionExponential ? 'cubicIn' : 'linear'));
 		$optionIgnoreVelocity.checked = datas.optionIgnoreVelocity;
 		$optionIgnoreVolume.checked = datas.optionIgnoreVolume;
@@ -529,11 +538,22 @@ window.addEventListener('DOMContentLoaded', () => {
 
 	function onDenseChange() {
 		$optionDenseSnap.disabled = !$optionDense.checked;
+
+		if($optionDense.checked)
+			$optionFinisherOnly.checked = false;
 	}
 
 	function onDenseSnapChange() {
 		$optionDense.checked = true;
 		$optionDenseSnap.disabled = false;
+		$optionFinisherOnly.checked = false;
+	}
+
+	function onFinisherOnlyChange() {
+		if($optionFinisherOnly.checked) {
+			$optionDense.checked = false;
+			$optionDenseSnap.disabled = true;
+		}
 	}
 
 	function onIgnoreVelocityChange() {

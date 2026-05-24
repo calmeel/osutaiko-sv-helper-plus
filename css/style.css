@@ -38,7 +38,7 @@ input, textarea, select, button {
 	color: var(--color-primary);
 }
 input::-webkit-input-placeholder {
-	color: color: var(--color-primary);
+	color: var(--color-primary);
 	opacity: .4;
 }
 
@@ -263,15 +263,35 @@ input::-webkit-input-placeholder {
 .option-select {
 	display: flex;
 	align-items: center;
-	margin: 3px 16px 0 0;
+	margin: 3px 12px 0 0;
 	font-size: 10px;
+}
+.option-select label {
+	flex: 0 0 auto;
+	white-space: nowrap;
+}
+.option-select select {
+	width: 172px;
 }
 .option-mode-row {
 	align-items: center;
+	flex-wrap: nowrap;
+}
+.option-sv-row {
+	margin-bottom: 7px;
+}
+.option-grid-row .checkbox:first-child {
+	flex: 0 0 190px;
+	margin-right: 16px;
+}
+.option-grid-row .checkbox {
+	white-space: nowrap;
 }
 .option-mode-row .option-backup {
-	margin-left: 25px;
-	margin-right: 22px;
+	margin-left: 0;
+	margin-right: 8px;
+	white-space: nowrap;
+	flex: 0 0 auto;
 }
 
 .btn {

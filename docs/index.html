@@ -121,6 +121,7 @@
 		<p class="muted">A guide for the forked plus version.</p>
 		<nav>
 			<a href="ja.html">日本語</a>
+			<a href="https://github.com/calmeel/osutaiko-sv-helper-plus">GitHub</a>
 		</nav>
 	</header>
 	<main>
@@ -141,7 +142,7 @@
 				</div>
 				<div>
 					<dt>Overwrite</dt>
-					<dd>Removes all inherited timing points in the selected range, then creates new inherited timing points.</dd>
+					<dd>Removes all inherited timing points in the selected range, then creates new inherited timing points. In normal Overwrite, points that would not change SV, Volume, or effects are skipped.</dd>
 				</div>
 				<div>
 					<dt>Modify</dt>
@@ -157,7 +158,7 @@
 				</div>
 				<div>
 					<dt>Dense Mode</dt>
-					<dd>Creates dense inherited timing points at <code>1/16 snap</code>, <code>1/8 snap</code>, or <code>1/4 snap</code>.</dd>
+					<dd>Creates dense inherited timing points at <code>1/16 snap</code>, <code>1/8 snap</code>, or <code>1/4 snap</code>. Dense Mode still places timing points even when the values do not change.</dd>
 				</div>
 				<div>
 					<dt>-1/16 Offset Mode</dt>
@@ -166,6 +167,10 @@
 				<div>
 					<dt>SV Mode</dt>
 					<dd>Selects how Velocity and Volume move from the start value to the end value.</dd>
+				</div>
+				<div>
+					<dt>Finisher Only Mode</dt>
+					<dd>Limits Overwrite and Modify to big-note/Finisher SV points. In Overwrite, when a Finisher changes SV or Volume, a restore point is placed at the next non-Finisher hit object or barline in the selected range. Consecutive Finishers are kept as one run, and this mode cannot be used together with Dense Mode.</dd>
 				</div>
 				<div>
 					<dt>Backup</dt>
@@ -185,7 +190,7 @@
 				<li><strong>Save</strong>: saves the current values into a named profile.</li>
 				<li><strong>Load</strong>: restores a saved profile.</li>
 				<li><strong>Delete</strong>: removes a saved profile.</li>
-				<li>Profiles include the edit values, range options, Dense Mode snap, Offset Mode, SV Mode, Keep settings, and Backup setting.</li>
+				<li>Profiles include the edit values, range options, Dense Mode snap, Offset Mode, Finisher Only Mode, SV Mode, Keep settings, and Backup setting.</li>
 			</ul>
 		</section>
 
@@ -194,13 +199,16 @@
 			<ul>
 				<li><code>Modify</code> and <code>Remove</code> now only affect inherited timing points, also known as green lines. Uninherited timing points, or red lines, are preserved.</li>
 				<li><code>Overwrite</code> is now a true overwrite. It removes all green lines inside the selected range before creating new ones. Red lines are preserved.</li>
+				<li>Normal Overwrite skips generated green lines that would not change SV, Volume, or effects. Dense Mode intentionally keeps placing dense green lines.</li>
 				<li>Normal Overwrite also creates SV points on barlines. Barline positions are calculated from red lines using <code>beatLength * meter</code>, and the final timestamp is floored.</li>
 				<li>Dense Mode supports <code>1/16 snap</code>, <code>1/8 snap</code>, and <code>1/4 snap</code>.</li>
 				<li><code>-1/16 Offset Mode</code> includes handling for 1/12 snap patterns: when 1/12 snap notes are present, nearby notes also use a <code>-1/12 offset</code>. Other hit objects and barlines use a <code>-1/16 offset</code>.</li>
 				<li>The Kiai option was removed. Overwrite inherits Kiai/effects from the start point. Modify keeps each timing point's original effects.</li>
 				<li>Velocity and Volume can be kept independently with small <code>Keep</code> checkboxes.</li>
 				<li>Volume input is limited to <code>5</code> through <code>100</code>.</li>
+				<li>Added <code>Finisher Only Mode</code>. Overwrite and Modify can affect only big-note/Finisher SV points, with restore points added after changed Finisher runs.</li>
 				<li>Added the <code>SV Mode</code> selector. The default behavior is <code>Linear</code>, and the old Exponential checkbox behavior is now available as <code>Cubic In / Accelerate Curve</code>. <code>Bezier In-Out</code> and <code>Bezier Out-In</code> are also available as fixed-control-point Bezier modes.</li>
+				<li>When the selected range crosses BPM changes, generated SV values are automatically BPM-compensated for all SV modes.</li>
 				<li>The app supports English and Japanese UI text, and the selected language is kept for the next launch.</li>
 				<li>The title bar includes a Manual link that opens this documentation.</li>
 				<li>The app checks GitHub Releases at most once every 24 hours and shows a notice when a newer version is available.</li>
@@ -255,31 +263,44 @@
 						<td>Fast at the beginning, slower near the end.</td>
 					</tr>
 					<tr>
-						<td>Sine In / Accelerate Curve</td>
+						<td>Sine In / Smooth Accelerate Curve</td>
 						<td><math><mi>value</mi><mo stretchy="false">(</mo><mi>t</mi><mo stretchy="false">)</mo><mo>=</mo><mi>s</mi><mo>+</mo><mo stretchy="false">(</mo><mn>1</mn><mo>-</mo><mi>cos</mi><mo stretchy="false">(</mo><mfrac><mrow><mi>t</mi><mi>&pi;</mi></mrow><mn>2</mn></mfrac><mo stretchy="false">)</mo><mo stretchy="false">)</mo><mo stretchy="false">(</mo><mi>e</mi><mo>-</mo><mi>s</mi><mo stretchy="false">)</mo></math></td>
 						<td>Smooth acceleration.</td>
 					</tr>
 					<tr>
-						<td>Sine Out / Decelerate Curve</td>
+						<td>Sine Out / Smooth Decelerate Curve</td>
 						<td><math><mi>value</mi><mo stretchy="false">(</mo><mi>t</mi><mo stretchy="false">)</mo><mo>=</mo><mi>s</mi><mo>+</mo><mi>sin</mi><mo stretchy="false">(</mo><mfrac><mrow><mi>t</mi><mi>&pi;</mi></mrow><mn>2</mn></mfrac><mo stretchy="false">)</mo><mo stretchy="false">(</mo><mi>e</mi><mo>-</mo><mi>s</mi><mo stretchy="false">)</mo></math></td>
 						<td>Smooth deceleration.</td>
 					</tr>
 					<tr>
-						<td>Bezier In-Out</td>
+						<td>Bezier In-Out / Accelerate-Decelerate Curve</td>
 						<td><math><mi>value</mi><mo stretchy="false">(</mo><mi>t</mi><mo stretchy="false">)</mo><mo>=</mo><mi>s</mi><mo>+</mo><mo stretchy="false">(</mo><mn>0.30</mn><msup><mrow><mo stretchy="false">(</mo><mn>1</mn><mo>-</mo><mi>t</mi><mo stretchy="false">)</mo></mrow><mn>2</mn></msup><mi>t</mi><mo>+</mo><mn>2.70</mn><mo stretchy="false">(</mo><mn>1</mn><mo>-</mo><mi>t</mi><mo stretchy="false">)</mo><msup><mi>t</mi><mn>2</mn></msup><mo>+</mo><msup><mi>t</mi><mn>3</mn></msup><mo stretchy="false">)</mo><mo stretchy="false">(</mo><mi>e</mi><mo>-</mo><mi>s</mi><mo stretchy="false">)</mo></math></td>
 						<td>Fixed Bezier curve with control values <code>0.10</code> and <code>0.90</code>. Slow at both ends and faster near the middle.</td>
 					</tr>
 					<tr>
-						<td>Bezier Out-In</td>
+						<td>Bezier Out-In / Decelerate-Accelerate Curve</td>
 						<td><math><mi>value</mi><mo stretchy="false">(</mo><mi>t</mi><mo stretchy="false">)</mo><mo>=</mo><mi>s</mi><mo>+</mo><mo stretchy="false">(</mo><mn>2.70</mn><msup><mrow><mo stretchy="false">(</mo><mn>1</mn><mo>-</mo><mi>t</mi><mo stretchy="false">)</mo></mrow><mn>2</mn></msup><mi>t</mi><mo>+</mo><mn>0.30</mn><mo stretchy="false">(</mo><mn>1</mn><mo>-</mo><mi>t</mi><mo stretchy="false">)</mo><msup><mi>t</mi><mn>2</mn></msup><mo>+</mo><msup><mi>t</mi><mn>3</mn></msup><mo stretchy="false">)</mo><mo stretchy="false">(</mo><mi>e</mi><mo>-</mo><mi>s</mi><mo stretchy="false">)</mo></math></td>
 						<td>Fixed Bezier curve with control values <code>0.90</code> and <code>0.10</code>. Fast at both ends and flatter near the middle.</td>
 					</tr>
 				</tbody>
 			</table>
+			<p>When the selected range crosses BPM changes, generated SV values are automatically BPM-compensated. This applies to all SV modes. The app uses the start BPM as the reference:</p>
+			<div class="formula">
+				<math display="block">
+					<mi>correctedValue</mi><mo stretchy="false">(</mo><mi>t</mi><mo stretchy="false">)</mo>
+					<mo>=</mo>
+					<mi>value</mi><mo stretchy="false">(</mo><mi>t</mi><mo stretchy="false">)</mo>
+					<mo>&times;</mo>
+					<mfrac>
+						<mi>startBPM</mi>
+						<mi>currentBPM</mi>
+					</mfrac>
+				</math>
+			</div>
 			<p>For Slider Velocity, the inherited timing point beat length is:</p>
 			<div class="formula">
 				<math display="block">
-					<mi>beatLength</mi><mo>=</mo><mfrac><mrow><mo>-</mo><mn>100</mn></mrow><mrow><mi>value</mi><mo stretchy="false">(</mo><mi>t</mi><mo stretchy="false">)</mo></mrow></mfrac>
+					<mi>beatLength</mi><mo>=</mo><mfrac><mrow><mo>-</mo><mn>100</mn></mrow><mrow><mi>correctedValue</mi><mo stretchy="false">(</mo><mi>t</mi><mo stretchy="false">)</mo></mrow></mfrac>
 				</math>
 			</div>
 			<p>For Volume, the value is rounded to the nearest integer.</p>

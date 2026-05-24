@@ -21,7 +21,6 @@
 			</div>
 			<div class="content">
 				<div class="field">
-					<label for="beatmap" data-i18n="beatmap">Beatmap</label>
 					<div class="file">
 						<div class="file-icon"><i class="bx bx-file-blank"></i></div>
 						<span class="file-label"><span class="file-label-placeholder" data-i18n="filePlaceholder">Drag &amp; drop beatmap file here (*.osu)</span></span>
@@ -83,8 +82,22 @@
 					</div>
 				</div>
 				<div class="field">
-					<label data-i18n="options">Options</label>
-					<div class="checkbox-group">
+					<div class="checkbox-group option-mode-row option-sv-row">
+						<div class="option-select">
+							<label for="op_sv_mode" data-i18n="svMode">SV Mode</label>
+							<select id="op_sv_mode">
+								<option value="linear" selected data-i18n="svLinear">Linear</option>
+								<option value="ratio" data-i18n="svRatio">Ratio</option>
+								<option value="cubicIn" data-i18n="svCubicIn">Cubic In / Accelerate Curve</option>
+								<option value="cubicOut" data-i18n="svCubicOut">Cubic Out / Decelerate Curve</option>
+								<option value="sineIn" data-i18n="svSineIn">Sine In / Smooth Accelerate Curve</option>
+								<option value="sineOut" data-i18n="svSineOut">Sine Out / Smooth Decelerate Curve</option>
+								<option value="bezierInOut" data-i18n="svBezierInOut">Bezier In-Out / Accelerate-Decelerate Curve</option>
+								<option value="bezierOutIn" data-i18n="svBezierOutIn">Bezier Out-In / Decelerate-Accelerate Curve</option>
+							</select>
+						</div>
+					</div>
+					<div class="checkbox-group option-grid-row">
 						<div class="checkbox">
 							<input type="checkbox" id="op_dense">
 							<label for="op_dense" data-i18n="denseMode">Dense Mode</label>
@@ -99,19 +112,10 @@
 							<label for="op_offset" data-i18n="offsetMode">-1/16 Offset Mode</label>
 						</div>
 					</div>
-					<div class="checkbox-group option-mode-row">
-						<div class="option-select">
-							<label for="op_sv_mode" data-i18n="svMode">SV Mode</label>
-							<select id="op_sv_mode">
-								<option value="linear" selected data-i18n="svLinear">Linear</option>
-								<option value="ratio" data-i18n="svRatio">Ratio</option>
-								<option value="cubicIn" data-i18n="svCubicIn">Cubic In / Accelerate Curve</option>
-								<option value="cubicOut" data-i18n="svCubicOut">Cubic Out / Decelerate Curve</option>
-								<option value="sineIn" data-i18n="svSineIn">Sine In / Accelerate Curve</option>
-								<option value="sineOut" data-i18n="svSineOut">Sine Out / Decelerate Curve</option>
-								<option value="bezierInOut" data-i18n="svBezierInOut">Bezier In-Out</option>
-								<option value="bezierOutIn" data-i18n="svBezierOutIn">Bezier Out-In</option>
-							</select>
+					<div class="checkbox-group option-mode-row option-grid-row">
+						<div class="checkbox">
+							<input type="checkbox" id="op_finisher_only">
+							<label for="op_finisher_only" data-i18n="finisherOnlyMode">Finisher Only Mode</label>
 						</div>
 						<div class="checkbox option-backup">
 							<input type="checkbox" id="op_backup" checked>
