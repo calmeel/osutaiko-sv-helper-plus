@@ -1,0 +1,221 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+	<meta charset="UTF-8">
+	<meta name="viewport" content="width=device-width, initial-scale=1.0">
+	<title>osu!taiko SV Helper plus Manual</title>
+	<style>
+		:root {
+			--bg: #21171c;
+			--panel: #2e1f25;
+			--line: #5a3a47;
+			--text: #f4dce8;
+			--muted: #d9a6bd;
+			--accent: #ff66ab;
+			--code: #3b272f;
+		}
+		* { box-sizing: border-box; }
+		body {
+			margin: 0;
+			font-family: "Segoe UI", Arial, sans-serif;
+			line-height: 1.65;
+			background: var(--bg);
+			color: var(--text);
+		}
+		header, main {
+			width: min(980px, calc(100% - 32px));
+			margin: 0 auto;
+		}
+		header {
+			padding: 40px 0 20px;
+			border-bottom: 1px solid var(--line);
+		}
+		main { padding: 24px 0 56px; }
+		h1, h2, h3 { line-height: 1.25; }
+		h1 { margin: 0 0 8px; font-size: 34px; }
+		h2 { margin: 36px 0 12px; color: #ffffff; }
+		h3 { margin: 24px 0 8px; color: var(--muted); }
+		a { color: var(--accent); }
+		nav {
+			display: flex;
+			gap: 14px;
+			flex-wrap: wrap;
+			margin-top: 18px;
+		}
+		section {
+			padding: 20px;
+			margin: 18px 0;
+			border: 1px solid var(--line);
+			border-radius: 8px;
+			background: var(--panel);
+		}
+		code, pre {
+			background: var(--code);
+			color: #ffffff;
+		}
+		code { padding: 2px 5px; border-radius: 4px; }
+		pre {
+			overflow-x: auto;
+			padding: 12px;
+			border-radius: 6px;
+		}
+		img {
+			display: block;
+			max-width: 100%;
+			height: auto;
+			margin: 16px 0;
+			border: 1px solid var(--line);
+			border-radius: 8px;
+		}
+		table {
+			width: 100%;
+			border-collapse: collapse;
+			margin-top: 12px;
+		}
+		th, td {
+			border: 1px solid var(--line);
+			padding: 8px;
+			text-align: left;
+			vertical-align: top;
+		}
+		th { color: #ffffff; background: var(--code); }
+		.muted { color: var(--muted); }
+		.formula {
+			display: block;
+			overflow-x: auto;
+			padding: 10px 0;
+			font-size: 18px;
+		}
+		.formula math {
+			font-family: "Cambria Math", "Times New Roman", serif;
+		}
+	</style>
+</head>
+<body>
+	<header>
+		<h1>osu!taiko SV Helper plus Manual</h1>
+		<p class="muted">A guide for the forked plus version.</p>
+		<nav>
+			<a href="ja.html">日本語</a>
+			<a href="#features">Features</a>
+			<a href="#advanced">Advanced Mode</a>
+			<a href="#plus">Plus Changes</a>
+			<a href="#sv-mode">SV Mode Formulas</a>
+		</nav>
+	</header>
+	<main>
+		<section id="features">
+			<h2>Features</h2>
+			<ul>
+				<li><strong>Beatmap</strong>: select or drag and drop a <code>.osu</code> file.</li>
+				<li><strong>Start Point / End Point</strong>: enter the time, Slider Velocity, and Volume for the edit range.</li>
+				<li><strong>Include Start Time / Include End Time</strong>: choose whether timing points exactly on the range edges are included.</li>
+				<li><strong>Overwrite</strong>: removes all inherited timing points in the selected range, then creates new inherited timing points.</li>
+				<li><strong>Modify</strong>: modifies existing inherited timing points in the selected range.</li>
+				<li><strong>Remove</strong>: removes inherited timing points in the selected range.</li>
+				<li><strong>Keep</strong>: keeps the original inherited Velocity or Volume instead of applying the input value.</li>
+				<li><strong>Dense Mode</strong>: creates dense inherited timing points at <code>1/16 snap</code>, <code>1/8 snap</code>, or <code>1/4 snap</code>.</li>
+				<li><strong>-1/16 Offset Mode</strong>: places generated SV points slightly before the target object. Triplet-style hit objects may automatically use <code>-1/12 snap</code>.</li>
+				<li><strong>SV Mode</strong>: selects how Velocity and Volume move from the start value to the end value.</li>
+				<li><strong>Backup</strong>: creates a backup before applying changes.</li>
+				<li><strong>Language / Manual</strong>: the app can switch between English and Japanese, remembers the last language, and opens this manual from the title bar.</li>
+			</ul>
+		</section>
+
+		<section id="advanced">
+			<h2>Advanced Mode</h2>
+			<p>Advanced Mode adds profile controls. A profile saves the current input values and options so the same SV setup can be reused later.</p>
+			<ul>
+				<li><strong>Save</strong>: saves the current values into a named profile.</li>
+				<li><strong>Load</strong>: restores a saved profile.</li>
+				<li><strong>Delete</strong>: removes a saved profile.</li>
+				<li>Profiles include the edit values, range options, Dense Mode snap, Offset Mode, SV Mode, Keep settings, and Backup setting.</li>
+			</ul>
+		</section>
+
+		<section id="plus">
+			<h2>Changes Added in plus</h2>
+			<ul>
+				<li><code>Modify</code> and <code>Remove</code> now only affect inherited timing points, also known as green lines. Uninherited timing points, or red lines, are preserved.</li>
+				<li><code>Overwrite</code> is now a true overwrite. It removes all green lines inside the selected range before creating new ones. Red lines are preserved.</li>
+				<li>Normal Overwrite also creates SV points on barlines. Barline positions are calculated from red lines using <code>beatLength * meter</code>, and the final timestamp is floored.</li>
+				<li>Dense Mode supports <code>1/16 snap</code>, <code>1/8 snap</code>, and <code>1/4 snap</code>.</li>
+				<li><code>-1/16 Offset Mode</code> includes automatic <code>-1/12 snap</code> handling for triplet-style hit objects. Other hit objects and barlines use <code>-1/16 snap</code>.</li>
+				<li>The Kiai option was removed. Overwrite inherits Kiai/effects from the start point. Modify keeps each timing point's original effects.</li>
+				<li>Velocity and Volume can be kept independently with small <code>Keep</code> checkboxes.</li>
+				<li>Volume input is limited to <code>5</code> through <code>100</code>.</li>
+				<li>The old Exponential checkbox was replaced with an <code>SV Mode</code> selector.</li>
+				<li>The app supports English and Japanese UI text, and the selected language is kept for the next launch.</li>
+				<li>The title bar includes a Manual link that opens this documentation.</li>
+				<li>The app checks GitHub Releases at most once every 24 hours and shows a notice when a newer version is available.</li>
+			</ul>
+		</section>
+
+		<section id="sv-mode">
+			<h2>SV Mode Formulas</h2>
+			<p>Let the progress value be:</p>
+			<div class="formula">
+				<math display="block">
+					<mi>t</mi>
+					<mo>=</mo>
+					<mfrac>
+						<mrow><mi>currentTime</mi><mo>-</mo><mi>startTime</mi></mrow>
+						<mrow><mi>endTime</mi><mo>-</mo><mi>startTime</mi></mrow>
+					</mfrac>
+				</math>
+			</div>
+			<p>Also let <code>s</code> be the start value and <code>e</code> be the end value. The normal domain is:</p>
+			<div class="formula">
+				<math display="block">
+					<mn>0</mn><mo>&le;</mo><mi>t</mi><mo>&le;</mo><mn>1</mn>
+				</math>
+			</div>
+			<img src="assets/sv-curves.svg" alt="Representative graph of SV mode curves">
+			<table>
+				<thead>
+					<tr><th>Mode</th><th>Formula</th><th>Shape</th></tr>
+				</thead>
+				<tbody>
+					<tr>
+						<td>Linear</td>
+						<td><math><mi>value</mi><mo stretchy="false">(</mo><mi>t</mi><mo stretchy="false">)</mo><mo>=</mo><mi>s</mi><mo>+</mo><mi>t</mi><mo stretchy="false">(</mo><mi>e</mi><mo>-</mo><mi>s</mi><mo stretchy="false">)</mo></math></td>
+						<td>Constant difference over time.</td>
+					</tr>
+					<tr>
+						<td>Ratio</td>
+						<td><math><mi>value</mi><mo stretchy="false">(</mo><mi>t</mi><mo stretchy="false">)</mo><mo>=</mo><mi>s</mi><msup><mrow><mo stretchy="false">(</mo><mfrac><mi>e</mi><mi>s</mi></mfrac><mo stretchy="false">)</mo></mrow><mi>t</mi></msup></math></td>
+						<td>Constant ratio over time.</td>
+					</tr>
+					<tr>
+						<td>Cubic In / Accelerate Curve</td>
+						<td><math><mi>value</mi><mo stretchy="false">(</mo><mi>t</mi><mo stretchy="false">)</mo><mo>=</mo><mi>s</mi><mo>+</mo><msup><mi>t</mi><mn>3</mn></msup><mo stretchy="false">(</mo><mi>e</mi><mo>-</mo><mi>s</mi><mo stretchy="false">)</mo></math></td>
+						<td>Slow at the beginning, faster near the end.</td>
+					</tr>
+					<tr>
+						<td>Cubic Out / Decelerate Curve</td>
+						<td><math><mi>value</mi><mo stretchy="false">(</mo><mi>t</mi><mo stretchy="false">)</mo><mo>=</mo><mi>s</mi><mo>+</mo><mo stretchy="false">(</mo><mn>1</mn><mo>-</mo><msup><mrow><mo stretchy="false">(</mo><mn>1</mn><mo>-</mo><mi>t</mi><mo stretchy="false">)</mo></mrow><mn>3</mn></msup><mo stretchy="false">)</mo><mo stretchy="false">(</mo><mi>e</mi><mo>-</mo><mi>s</mi><mo stretchy="false">)</mo></math></td>
+						<td>Fast at the beginning, slower near the end.</td>
+					</tr>
+					<tr>
+						<td>Sine In / Accelerate Curve</td>
+						<td><math><mi>value</mi><mo stretchy="false">(</mo><mi>t</mi><mo stretchy="false">)</mo><mo>=</mo><mi>s</mi><mo>+</mo><mo stretchy="false">(</mo><mn>1</mn><mo>-</mo><mi>cos</mi><mo stretchy="false">(</mo><mfrac><mrow><mi>t</mi><mi>&pi;</mi></mrow><mn>2</mn></mfrac><mo stretchy="false">)</mo><mo stretchy="false">)</mo><mo stretchy="false">(</mo><mi>e</mi><mo>-</mo><mi>s</mi><mo stretchy="false">)</mo></math></td>
+						<td>Smooth acceleration.</td>
+					</tr>
+					<tr>
+						<td>Sine Out / Decelerate Curve</td>
+						<td><math><mi>value</mi><mo stretchy="false">(</mo><mi>t</mi><mo stretchy="false">)</mo><mo>=</mo><mi>s</mi><mo>+</mo><mi>sin</mi><mo stretchy="false">(</mo><mfrac><mrow><mi>t</mi><mi>&pi;</mi></mrow><mn>2</mn></mfrac><mo stretchy="false">)</mo><mo stretchy="false">(</mo><mi>e</mi><mo>-</mo><mi>s</mi><mo stretchy="false">)</mo></math></td>
+						<td>Smooth deceleration.</td>
+					</tr>
+				</tbody>
+			</table>
+			<p>For Slider Velocity, the inherited timing point beat length is:</p>
+			<div class="formula">
+				<math display="block">
+					<mi>beatLength</mi><mo>=</mo><mfrac><mrow><mo>-</mo><mn>100</mn></mrow><mrow><mi>value</mi><mo stretchy="false">(</mo><mi>t</mi><mo stretchy="false">)</mo></mrow></mfrac>
+				</math>
+			</div>
+			<p>For Volume, the value is rounded to the nearest integer.</p>
+		</section>
+	</main>
+</body>
+</html>

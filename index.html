@@ -12,38 +12,46 @@
 		<div class="wrap mode-basic">
 			<div class="titlebar">
 				<div class="titlebar-text">osu!taiko SV Helper plus</div>
+				<select class="titlebar-language" tabindex="-1" aria-label="Language">
+					<option value="en">EN</option>
+					<option value="ja">JP</option>
+				</select>
+				<button type="button" class="titlebar-manual" tabindex="-1" data-i18n="manual">Manual</button>
 				<div class="titlebar-close"><i class='bx bx-x'></i></div>
 			</div>
 			<div class="content">
 				<div class="field">
-					<label for="beatmap">Beatmap</label>
+					<label for="beatmap" data-i18n="beatmap">Beatmap</label>
 					<div class="file">
 						<div class="file-icon"><i class="bx bx-file-blank"></i></div>
-						<span class="file-label"><span class="file-label-placeholder">Drag &amp; drop beatmap file here (*.osu)</span></span>
-						<button type="button" class="file-select" tabindex="-1">Select</button>
+						<span class="file-label"><span class="file-label-placeholder" data-i18n="filePlaceholder">Drag &amp; drop beatmap file here (*.osu)</span></span>
+						<button type="button" class="file-select" tabindex="-1" data-i18n="selectFile">Select</button>
 					</div>
 				</div>
 				<div class="field mode-item-advanced">
-					<label>Profile</label>
+					<div class="field-heading">
+						<label data-i18n="profile">Profile</label>
+						<span data-i18n="profileNote">Save and reuse settings.</span>
+					</div>
 					<div class="profile">
-						<input type="text" placeholder="Profile Name">
+						<input type="text" placeholder="Profile Name" data-i18n-placeholder="profileName">
 						<select size="5"></select>
 						<div class="profile-btn-group">
-							<button type="button" class="profile-btn profile-btn-save">Save</button>
-							<button type="button" class="profile-btn profile-btn-load">Load</button>
-							<button type="button" class="profile-btn profile-btn-delete">Delete</button>
+							<button type="button" class="profile-btn profile-btn-save" data-i18n="save">Save</button>
+							<button type="button" class="profile-btn profile-btn-load" data-i18n="load">Load</button>
+							<button type="button" class="profile-btn profile-btn-delete" data-i18n="delete">Delete</button>
 						</div>
 					</div>
 				</div>
 				<div class="field-group field-group-keep">
 					<div class="field">
-						<label for="sp_time">Start Point</label>
-						<input type="text" id="sp_time" placeholder="Time (00:12:345 - ...)" tabindex="1">
-						<input type="text" id="sp_velocity" placeholder="Slider Velocity (1.0...)" tabindex="3">
-						<input type="text" id="sp_volume" placeholder="Volume (5 ~ 100)" tabindex="5">
+						<label for="sp_time" data-i18n="startPoint">Start Point</label>
+						<input type="text" id="sp_time" placeholder="Time (00:12:345 - ...)" data-i18n-placeholder="timePlaceholder" tabindex="1">
+						<input type="text" id="sp_velocity" placeholder="Slider Velocity (1.0...)" data-i18n-placeholder="velocityPlaceholder" tabindex="3">
+						<input type="text" id="sp_volume" placeholder="Volume (5 ~ 100)" data-i18n-placeholder="volumePlaceholder" tabindex="5">
 						<div class="checkbox">
 							<input type="checkbox" id="sp_include" checked>
-							<label for="sp_include">Include Start Time</label>
+							<label for="sp_include" data-i18n="includeStart">Include Start Time</label>
 						</div>
 					</div>
 					<div class="swap">
@@ -52,73 +60,70 @@
 						<button class="swap-btn swap-volume" tabindex="-1"><img src="./img/swap.svg" alt="Swap"></button>
 					</div>
 					<div class="field">
-						<label for="sp_time">End Point</label>
-						<input type="text" id="ep_time" placeholder="Time (00:12:345 - ...)" tabindex="2">
+						<label for="sp_time" data-i18n="endPoint">End Point</label>
+						<input type="text" id="ep_time" placeholder="Time (00:12:345 - ...)" data-i18n-placeholder="timePlaceholder" tabindex="2">
 						<div class="input-option-row">
-							<input type="text" id="ep_velocity" placeholder="Slider Velocity (1.0...)" tabindex="4">
+							<input type="text" id="ep_velocity" placeholder="Slider Velocity (1.0...)" data-i18n-placeholder="velocityPlaceholder" tabindex="4">
 							<div class="checkbox checkbox-mini input-option-check">
 								<input type="checkbox" id="op_ignr_velocity">
-								<label for="op_ignr_velocity">Keep</label>
+								<label for="op_ignr_velocity" data-i18n="keep">Keep</label>
 							</div>
 						</div>
 						<div class="input-option-row">
-							<input type="text" id="ep_volume" placeholder="Volume (5 ~ 100)" tabindex="6">
+							<input type="text" id="ep_volume" placeholder="Volume (5 ~ 100)" data-i18n-placeholder="volumePlaceholder" tabindex="6">
 							<div class="checkbox checkbox-mini input-option-check">
 								<input type="checkbox" id="op_ignr_volume">
-								<label for="op_ignr_volume">Keep</label>
+								<label for="op_ignr_volume" data-i18n="keep">Keep</label>
 							</div>
 						</div>
 						<div class="checkbox">
 							<input type="checkbox" id="ep_include" checked>
-							<label for="ep_include">Include End Time</label>
+							<label for="ep_include" data-i18n="includeEnd">Include End Time</label>
 						</div>
 					</div>
 				</div>
 				<div class="field">
-					<label>Options</label>
+					<label data-i18n="options">Options</label>
 					<div class="checkbox-group">
 						<div class="checkbox">
 							<input type="checkbox" id="op_dense">
-							<label for="op_dense">Dense Mode</label>
-						</div>
-						<div class="checkbox checkbox-assist">
-							<input type="checkbox" id="op_dense_eighth">
-							( <label for="op_dense_eighth">1/8 Snap</label> )
+							<label for="op_dense" data-i18n="denseMode">Dense Mode</label>
+							<select id="op_dense_snap">
+								<option value="16" selected>1/16 snap</option>
+								<option value="8">1/8 snap</option>
+								<option value="4">1/4 snap</option>
+							</select>
 						</div>
 						<div class="checkbox">
 							<input type="checkbox" id="op_offset">
-							<label for="op_offset">-1/16 Offset</label>
-						</div>
-						<div class="checkbox checkbox-assist">
-							<input type="checkbox" id="op_offset_precise">
-							( <label for="op_offset_precise">-1/12 Inclusive</label> )
+							<label for="op_offset" data-i18n="offsetMode">-1/16 Offset Mode</label>
 						</div>
 					</div>
 					<div class="checkbox-group option-mode-row">
 						<div class="option-select">
-							<label for="op_sv_mode">SV Mode</label>
+							<label for="op_sv_mode" data-i18n="svMode">SV Mode</label>
 							<select id="op_sv_mode">
-								<option value="linear" selected>Linear</option>
-								<option value="ratio">Ratio</option>
-								<option value="cubicIn">Cubic In / Accelerate Curve</option>
-								<option value="cubicOut">Cubic Out / Decelerate Curve</option>
-								<option value="sineIn">Sine In / Accelerate Curve</option>
-								<option value="sineOut">Sine Out / Decelerate Curve</option>
+								<option value="linear" selected data-i18n="svLinear">Linear</option>
+								<option value="ratio" data-i18n="svRatio">Ratio</option>
+								<option value="cubicIn" data-i18n="svCubicIn">Cubic In / Accelerate Curve</option>
+								<option value="cubicOut" data-i18n="svCubicOut">Cubic Out / Decelerate Curve</option>
+								<option value="sineIn" data-i18n="svSineIn">Sine In / Accelerate Curve</option>
+								<option value="sineOut" data-i18n="svSineOut">Sine Out / Decelerate Curve</option>
 							</select>
 						</div>
 						<div class="checkbox option-backup">
 							<input type="checkbox" id="op_backup" checked>
-							<label for="op_backup">Backup</label>
+							<label for="op_backup" data-i18n="backup">Backup</label>
 						</div>
 					</div>
 				</div>
 				<div class="btn-group">
-					<button type="button" class="btn btn-overwrite" tabindex="-1">Overwrite</button>
-					<button type="button" class="btn btn-modify" tabindex="-1">Modify</button>
+					<button type="button" class="btn btn-overwrite" tabindex="-1" data-i18n="overwrite">Overwrite</button>
+					<button type="button" class="btn btn-modify" tabindex="-1" data-i18n="modify">Modify</button>
 				</div>
 				<div class="btn-group">
-					<button type="button" class="btn btn-remove" tabindex="-1">Remove</button>
-					<button type="button" class="btn btn-backup" tabindex="-1">Open Backup Folder</button>
+					<button type="button" class="btn btn-remove" tabindex="-1" data-i18n="remove">Remove</button>
+					<button type="button" class="btn btn-backup" tabindex="-1" data-i18n="openBackupFolder">Open Backup Folder</button>
 				</div>
 				<a class="mode-toggler"></a>
 			</div>

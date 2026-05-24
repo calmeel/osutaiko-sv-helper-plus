@@ -444,6 +444,39 @@ describe('Beatmap Module Unit Test', () => {
 			expect(addedTimingPoints.map(timingPoint => timingPoint.time)).toEqual(expectedTimingPointTimes);
 		});
 
+		test('Overwrite (Dense 1/4 Snap)', () => {
+			const startTime = mockBeatmap.hitObjects[0].time;
+			const endTime = mockBeatmap.hitObjects[1].time;
+			const options = {
+				startVelocity: 1.0,
+				startVolume: 100,
+				endVelocity: 1.0,
+				endVolume: 100,
+				includingStartTime: true,
+				includingEndTime: true,
+				isDense: true,
+				denseSnap: 4,
+				isOffset: false,
+				isOffsetPrecise: false,
+				svMode: 'linear',
+				isIgnoreVelocity: false,
+				isIgnoreVolume: false,
+				isBackup: false
+			};
+			const expectedTimingPointTimes = [];
+
+			for(let i = startTime; i <= endTime; i = mockBeatmapManipulater.getSnapBasedOffsetTime(i, 4)) {
+				expectedTimingPointTimes.push(i);
+			}
+
+			mockBeatmapManipulater.overwrite(startTime, endTime, options);
+
+			const modifiedBeatmap = new Beatmap(mockBeatmapPath);
+			const addedTimingPoints = modifiedBeatmap.getTimingPointsInRange(startTime, endTime);
+
+			expect(addedTimingPoints.map(timingPoint => timingPoint.time)).toEqual(expectedTimingPointTimes);
+		});
+
 		test('Overwrite Adds Barline Timing Points', () => {
 			const startTime = mockBeatmap.timingPoints[0].time;
 			const endTime = mockBeatmap.timingPoints.slice(-1)[0].time;
@@ -620,6 +653,37 @@ describe('Beatmap Module Unit Test', () => {
 
 			expect(inheritedTimingPointTimes).toContain(expectedOffsetTime);
 			expect(inheritedTimingPointTimes).not.toContain(startTime);
+		});
+
+		test('Overwrite Automatically Uses 1/12 Offset For Triplet Hit Objects', () => {
+			const startTime = 1956;
+			const endTime = 2043;
+			const expectedTripletOffsetTime = mockBeatmapManipulater.getSnapBasedOffsetTime(startTime, -12);
+			const regularOffsetTime = mockBeatmapManipulater.getSnapBasedOffsetTime(startTime, -16);
+
+			mockBeatmapManipulater.overwrite(startTime, endTime, {
+				startVelocity: 1.0,
+				startVolume: 100,
+				endVelocity: 1.0,
+				endVolume: 100,
+				includingStartTime: true,
+				includingEndTime: false,
+				isDense: false,
+				isOffset: true,
+				isOffsetPrecise: false,
+				svMode: 'linear',
+				isIgnoreVelocity: false,
+				isIgnoreVolume: false,
+				isBackup: false
+			});
+
+			const modifiedBeatmap = new Beatmap(mockBeatmapPath);
+			const inheritedTimingPointTimes = modifiedBeatmap.timingPoints
+				.filter(timingPoint => timingPoint.uninherited === 0)
+				.map(timingPoint => timingPoint.time);
+
+			expect(inheritedTimingPointTimes).toContain(expectedTripletOffsetTime);
+			expect(inheritedTimingPointTimes).not.toContain(regularOffsetTime);
 		});
 
 		test('Modify', () => {

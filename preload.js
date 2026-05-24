@@ -2,6 +2,84 @@ const { ipcRenderer } = require('electron');
 
 const { __VERSION__ } = require('./src/env');
 
+const DEFAULT_LANGUAGE = 'en';
+const I18N = {
+	en: {
+		manual: 'Manual',
+		beatmap: 'Beatmap',
+		filePlaceholder: 'Drag & drop beatmap file here (*.osu)',
+		selectFile: 'Select',
+		profile: 'Profile',
+		profileNote: 'Save and reuse settings.',
+		profileName: 'Profile Name',
+		save: 'Save',
+		load: 'Load',
+		delete: 'Delete',
+		startPoint: 'Start Point',
+		endPoint: 'End Point',
+		timePlaceholder: 'Time (00:12:345 - ...)',
+		velocityPlaceholder: 'Slider Velocity (1.0...)',
+		volumePlaceholder: 'Volume (5 ~ 100)',
+		includeStart: 'Include Start Time',
+		includeEnd: 'Include End Time',
+		keep: 'Keep',
+		options: 'Options',
+		denseMode: 'Dense Mode',
+		offsetMode: '-1/16 Offset Mode',
+		svMode: 'SV Mode',
+		svLinear: 'Linear',
+		svRatio: 'Ratio',
+		svCubicIn: 'Cubic In / Accelerate Curve',
+		svCubicOut: 'Cubic Out / Decelerate Curve',
+		svSineIn: 'Sine In / Accelerate Curve',
+		svSineOut: 'Sine Out / Decelerate Curve',
+		backup: 'Backup',
+		overwrite: 'Overwrite',
+		modify: 'Modify',
+		remove: 'Remove',
+		openBackupFolder: 'Open Backup Folder',
+		basicMode: 'Basic Mode...',
+		advancedMode: 'Advanced Mode...'
+	},
+	ja: {
+		manual: '説明書',
+		beatmap: '譜面',
+		filePlaceholder: '.osuファイルをドラッグ&ドロップ',
+		selectFile: '選択',
+		profile: 'プロファイル',
+		profileNote: '設定を保存できます',
+		profileName: 'プロファイル名',
+		save: '保存',
+		load: '読込',
+		delete: '削除',
+		startPoint: '開始地点',
+		endPoint: '終了地点',
+		timePlaceholder: '時刻 (00:12:345 - ...)',
+		velocityPlaceholder: 'SV (1.0...)',
+		volumePlaceholder: '音量 (5 ~ 100)',
+		includeStart: '開始地点を含む',
+		includeEnd: '終了地点を含む',
+		keep: '維持',
+		options: 'オプション',
+		denseMode: 'Dense モード',
+		offsetMode: '-1/16 Offset モード',
+		svMode: 'SVモード',
+		svLinear: 'Linear / 等差',
+		svRatio: 'Ratio / 等比',
+		svCubicIn: 'Cubic In / 加速カーブ',
+		svCubicOut: 'Cubic Out / 減速カーブ',
+		svSineIn: 'Sine In / 加速カーブ',
+		svSineOut: 'Sine Out / 減速カーブ',
+		backup: 'バックアップ',
+		overwrite: '上書き',
+		modify: '修正',
+		remove: '削除',
+		openBackupFolder: 'バックアップを開く',
+		basicMode: '基本モード...',
+		advancedMode: '詳細モード...'
+	}
+};
+
 class Storage {
 	static instance;
 
@@ -204,6 +282,8 @@ window.addEventListener('DOMContentLoaded', () => {
 	const $wrap = document.querySelector('.wrap');
 
 	const $closeButton = document.querySelector('.titlebar-close');
+	const $manualButton = document.querySelector('.titlebar-manual');
+	const $languageSelect = document.querySelector('.titlebar-language');
 
 	const $startPointTime = document.getElementById('sp_time');
 	const $startPointVelocity = document.getElementById('sp_velocity');
@@ -216,9 +296,8 @@ window.addEventListener('DOMContentLoaded', () => {
 	const $endTimeInclude = document.getElementById('ep_include');
 
 	const $optionDense = document.getElementById('op_dense');
-	const $optionDenseEighth = document.getElementById('op_dense_eighth');
+	const $optionDenseSnap = document.getElementById('op_dense_snap');
 	const $optionOffset = document.getElementById('op_offset');
-	const $optionOffsetPrecise = document.getElementById('op_offset_precise');
 	const $svMode = document.getElementById('op_sv_mode');
 	const $optionIgnoreVelocity = document.getElementById('op_ignr_velocity');
 	const $optionIgnoreVolume = document.getElementById('op_ignr_volume');
@@ -236,6 +315,8 @@ window.addEventListener('DOMContentLoaded', () => {
 	const $swapVolume = document.querySelector('.swap-volume');
 
 	$closeButton.addEventListener('click', onCloseClick);
+	$manualButton.addEventListener('click', onManualClick);
+	$languageSelect.addEventListener('change', onLanguageChange);
 
 	$overwriteButton.addEventListener('click', onOverwriteClick);
 	$modifyButton.addEventListener('click', onModifyClick);
@@ -243,9 +324,7 @@ window.addEventListener('DOMContentLoaded', () => {
 	$backupButton.addEventListener('click', onBackupClick);
 
 	$optionDense.addEventListener('change', onDenseChange);
-	$optionDenseEighth.addEventListener('change', onDenseEighthChange);
-	$optionOffset.addEventListener('change', onOffsetChange);
-	$optionOffsetPrecise.addEventListener('change', onOffsetPreciseChange);
+	$optionDenseSnap.addEventListener('change', onDenseSnapChange);
 	$optionIgnoreVelocity.addEventListener('change', onIgnoreVelocityChange);
 	$optionIgnoreVolume.addEventListener('change', onIgnoreVolumeChange);
 
@@ -258,6 +337,15 @@ window.addEventListener('DOMContentLoaded', () => {
 	profileUI.onSave = getInputDatas;
 	profileUI.onLoad = setInputDatas;
 
+	let currentLanguage = Storage.getAccess((storage) => {
+		if(!storage.language)
+			storage.language = DEFAULT_LANGUAGE;
+
+		return normalizeLanguage(storage.language);
+	});
+
+	applyLanguage(currentLanguage);
+
 	Storage.getAccess((storage) => {
 		if(storage.mode) {
 			setMode(storage.mode);
@@ -265,6 +353,7 @@ window.addEventListener('DOMContentLoaded', () => {
 			setMode('basic');
 		}
 	});
+	onDenseChange();
 
 	function setMode(mode) {
 		let _mode;
@@ -288,10 +377,20 @@ window.addEventListener('DOMContentLoaded', () => {
 		Storage.getAccess((storage) => {
 			storage.mode = _mode;
 		});
+
+		updateModeTogglerLabel();
 	}
 
 	function onCloseClick() {
 		ipcRenderer.send('main:close');
+	}
+
+	function onManualClick() {
+		ipcRenderer.send('main:manual', currentLanguage);
+	}
+
+	function onLanguageChange() {
+		applyLanguage($languageSelect.value);
 	}
 
 	function onOverwriteClick() {
@@ -310,11 +409,11 @@ window.addEventListener('DOMContentLoaded', () => {
 			optionDense: d.optionDense,
 			optionDenseSnap: d.optionDenseSnap,
 			optionOffset: d.optionOffset,
-			optionOffsetPrecise: d.optionOffsetPrecise,
 			svMode: d.svMode,
 			optionIgnoreVelocity: d.optionIgnoreVelocity,
 			optionIgnoreVolume: d.optionIgnoreVolume,
-			optionBackup: d.optionBackup
+			optionBackup: d.optionBackup,
+			language: currentLanguage
 		});
 	}
 
@@ -332,11 +431,11 @@ window.addEventListener('DOMContentLoaded', () => {
 			endPointVolume: d.endPointVolume,
 			endTimeInclude: d.endTimeInclude,
 			optionOffset: d.optionOffset,
-			optionOffsetPrecise: d.optionOffsetPrecise,
 			svMode: d.svMode,
 			optionIgnoreVelocity: d.optionIgnoreVelocity,
 			optionIgnoreVolume: d.optionIgnoreVolume,
-			optionBackup: d.optionBackup
+			optionBackup: d.optionBackup,
+			language: currentLanguage
 		});
 	}
 
@@ -350,8 +449,8 @@ window.addEventListener('DOMContentLoaded', () => {
 			endPointTime: d.endPointTime,
 			endTimeInclude: d.endTimeInclude,
 			optionOffset: d.optionOffset,
-			optionOffsetPrecise: d.optionOffsetPrecise,
-			optionBackup: d.optionBackup
+			optionBackup: d.optionBackup,
+			language: currentLanguage
 		});
 	}
 
@@ -373,9 +472,8 @@ window.addEventListener('DOMContentLoaded', () => {
 		const endTimeInclude = $endTimeInclude.checked;
 
 		const optionDense = $optionDense.checked;
-		const optionDenseSnap = $optionDenseEighth.checked ? 8 : 16;
+		const optionDenseSnap = parseInt($optionDenseSnap.value);
 		const optionOffset = $optionOffset.checked;
-		const optionOffsetPrecise = $optionOffsetPrecise.checked;
 		const svMode = $svMode.value;
 		const optionIgnoreVelocity = $optionIgnoreVelocity.checked;
 		const optionIgnoreVolume = $optionIgnoreVolume.checked;
@@ -394,7 +492,6 @@ window.addEventListener('DOMContentLoaded', () => {
 			optionDense,
 			optionDenseSnap,
 			optionOffset,
-			optionOffsetPrecise,
 			svMode,
 			optionIgnoreVelocity,
 			optionIgnoreVolume,
@@ -414,37 +511,25 @@ window.addEventListener('DOMContentLoaded', () => {
 		$endTimeInclude.checked = datas.endTimeInclude;
 
 		$optionDense.checked = datas.optionDense;
-		$optionDenseEighth.checked = datas.optionDenseSnap === 8;
+		$optionDenseSnap.value = normalizeDenseSnap(datas.optionDenseSnap);
 		$optionOffset.checked = datas.optionOffset;
-		$optionOffsetPrecise.checked = datas.optionOffsetPrecise;
 		$svMode.value = normalizeSvMode(datas.svMode || (datas.optionExponential ? 'cubicIn' : 'linear'));
 		$optionIgnoreVelocity.checked = datas.optionIgnoreVelocity;
 		$optionIgnoreVolume.checked = datas.optionIgnoreVolume;
 		$optionBackup.checked = datas.optionBackup;
 
-		$optionDenseEighth.dispatchEvent(new Event('change'));
+		onDenseChange();
 		$optionIgnoreVelocity.dispatchEvent(new Event('change'));
 		$optionIgnoreVolume.dispatchEvent(new Event('change'));
 	}
 
 	function onDenseChange() {
-		if(!$optionDense.checked)
-			$optionDenseEighth.checked = false;
+		$optionDenseSnap.disabled = !$optionDense.checked;
 	}
 
-	function onDenseEighthChange() {
-		if($optionDenseEighth.checked)
-			$optionDense.checked = true;
-	}
-
-	function onOffsetChange() {
-		if(!$optionOffset.checked)
-			$optionOffsetPrecise.checked = false;
-	}
-
-	function onOffsetPreciseChange() {
-		if($optionOffsetPrecise.checked)
-			$optionOffset.checked = true;
+	function onDenseSnapChange() {
+		$optionDense.checked = true;
+		$optionDenseSnap.disabled = false;
 	}
 
 	function onIgnoreVelocityChange() {
@@ -477,6 +562,46 @@ window.addEventListener('DOMContentLoaded', () => {
 		}
 	}
 
+	function applyLanguage(language) {
+		currentLanguage = normalizeLanguage(language);
+		$languageSelect.value = currentLanguage;
+
+		const messages = I18N[currentLanguage];
+
+		document.querySelectorAll('[data-i18n]').forEach($el => {
+			const key = $el.dataset.i18n;
+
+			if(messages[key])
+				$el.innerText = messages[key];
+		});
+
+		document.querySelectorAll('[data-i18n-placeholder]').forEach($el => {
+			const key = $el.dataset.i18nPlaceholder;
+
+			if(messages[key])
+				$el.placeholder = messages[key];
+		});
+
+		Storage.getAccess((storage) => {
+			storage.language = currentLanguage;
+		});
+
+		ipcRenderer.send('main:language', currentLanguage);
+
+		updateModeTogglerLabel();
+	}
+
+	function updateModeTogglerLabel() {
+		const messages = I18N[currentLanguage];
+		const isBasic = $wrap.classList.contains('mode-basic');
+
+		$modeToggler.dataset.label = isBasic ? messages.advancedMode : messages.basicMode;
+	}
+
+	function normalizeLanguage(language) {
+		return I18N[language] ? language : DEFAULT_LANGUAGE;
+	}
+
 	function onSwapTimeButtonClick() {
 		[$startPointTime.value, $endPointTime.value] = [$endPointTime.value, $startPointTime.value];
 	}
@@ -498,6 +623,14 @@ window.addEventListener('DOMContentLoaded', () => {
 
 		return svMode;
 	}
+
+	function normalizeDenseSnap(snap) {
+		if(parseInt(snap) === 4)
+			return '4';
+
+		return parseInt(snap) === 8 ? '8' : '16';
+	}
+
 });
 
 module.exports = {

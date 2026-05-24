@@ -1,0 +1,60 @@
+<svg xmlns="http://www.w3.org/2000/svg" width="900" height="560" viewBox="0 0 900 560" role="img" aria-labelledby="title desc">
+  <title id="title">SV mode curve comparison</title>
+  <desc id="desc">Representative normalized curves for Linear, Ratio, Cubic In, Cubic Out, Sine In, and Sine Out.</desc>
+  <rect width="900" height="560" fill="#21171c"/>
+  <rect x="52" y="40" width="796" height="460" rx="8" fill="#2e1f25" stroke="#5a3a47"/>
+  <g stroke="#5a3a47" stroke-width="1">
+    <line x1="120" y1="430" x2="780" y2="430"/>
+    <line x1="120" y1="80" x2="120" y2="430"/>
+    <line x1="120" y1="360" x2="780" y2="360" opacity=".45"/>
+    <line x1="120" y1="290" x2="780" y2="290" opacity=".45"/>
+    <line x1="120" y1="220" x2="780" y2="220" opacity=".45"/>
+    <line x1="120" y1="150" x2="780" y2="150" opacity=".45"/>
+    <line x1="252" y1="80" x2="252" y2="430" opacity=".35"/>
+    <line x1="384" y1="80" x2="384" y2="430" opacity=".35"/>
+    <line x1="516" y1="80" x2="516" y2="430" opacity=".35"/>
+    <line x1="648" y1="80" x2="648" y2="430" opacity=".35"/>
+  </g>
+  <g fill="#d9a6bd" font-family="Arial, sans-serif" font-size="18">
+    <text x="112" y="462">0</text>
+    <text x="764" y="462">1</text>
+    <text x="86" y="436">0</text>
+    <text x="86" y="86">1</text>
+    <text x="420" y="492">t</text>
+    <text x="56" y="258" transform="rotate(-90 56 258)">normalized value</text>
+  </g>
+  <g fill="none" stroke-linecap="round" stroke-linejoin="round" stroke-width="5">
+    <path d="M120 430 L780 80" stroke="#ffffff" opacity=".7"/>
+    <path d="M120 430 C300 402 520 274 780 80" stroke="#ffb000"/>
+    <path d="M120 430 C360 430 560 370 780 80" stroke="#ff66ab"/>
+    <path d="M120 430 C340 140 540 80 780 80" stroke="#58d68d"/>
+    <path d="M120 430 C284 430 514 300 780 80" stroke="#8fd3ff"/>
+    <path d="M120 430 C330 190 555 80 780 80" stroke="#b48cff"/>
+  </g>
+  <g font-family="Arial, sans-serif" font-size="16">
+    <g transform="translate(125 24)">
+      <rect x="0" y="0" width="16" height="5" fill="#ffffff" opacity=".7"/>
+      <text x="24" y="8" fill="#d9a6bd">Linear</text>
+    </g>
+    <g transform="translate(230 24)">
+      <rect x="0" y="0" width="16" height="5" fill="#ffb000"/>
+      <text x="24" y="8" fill="#d9a6bd">Ratio</text>
+    </g>
+    <g transform="translate(330 24)">
+      <rect x="0" y="0" width="16" height="5" fill="#ff66ab"/>
+      <text x="24" y="8" fill="#d9a6bd">Cubic In</text>
+    </g>
+    <g transform="translate(465 24)">
+      <rect x="0" y="0" width="16" height="5" fill="#58d68d"/>
+      <text x="24" y="8" fill="#d9a6bd">Cubic Out</text>
+    </g>
+    <g transform="translate(615 24)">
+      <rect x="0" y="0" width="16" height="5" fill="#8fd3ff"/>
+      <text x="24" y="8" fill="#d9a6bd">Sine In</text>
+    </g>
+    <g transform="translate(735 24)">
+      <rect x="0" y="0" width="16" height="5" fill="#b48cff"/>
+      <text x="24" y="8" fill="#d9a6bd">Sine Out</text>
+    </g>
+  </g>
+</svg>

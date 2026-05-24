@@ -12,12 +12,14 @@ const mockBrowserSetBounds = jest.fn();
 jest.mock('electron', () => ({
 	app: {
 		quit: jest.fn(),
+		getPath: jest.fn().mockReturnValue(__dirname),
 		on: jest.fn().mockImplementation((eventName, eventCallback) => {
 			eventCallback();
 		})
 	},
 	shell: {
-		openPath: jest.fn()
+		openPath: jest.fn(),
+		openExternal: jest.fn()
 	},
 	dialog: {
 		showOpenDialogSync: jest.fn(),
@@ -68,6 +70,8 @@ describe('Main Process Unit Test', () => {
 			'main:overwrite',
 			'main:remove',
 			'main:backup',
+			'main:manual',
+			'main:language',
 			'main:close'
 		]));
 	});
@@ -95,6 +99,30 @@ describe('Main Process Unit Test', () => {
 		expect(main.showMessageBox('error', '', '')).toBe('error');
 
 		expect(dialog.showMessageBox).toHaveBeenCalled();
+	});
+
+	test('Open Manual', () => {
+		main.onClickManual();
+
+		expect(shell.openExternal).toHaveBeenCalledWith('https://calmeel.github.io/osutaiko-sv-helper-plus/');
+
+		main.onClickManual({}, 'ja');
+
+		expect(shell.openExternal).toHaveBeenCalledWith('https://calmeel.github.io/osutaiko-sv-helper-plus/ja.html');
+	});
+
+	test('Language Change', () => {
+		main.checkForUpdatesThrottled = jest.fn();
+		main.onLanguageChange({}, 'ja');
+
+		expect(main.language).toBe('ja');
+		expect(main.checkForUpdatesThrottled).toHaveBeenCalled();
+	});
+
+	test('Compare Versions', () => {
+		expect(main.constructor.compareVersions('1.1.5', '1.1.4')).toBe(1);
+		expect(main.constructor.compareVersions('v1.1.4', '1.1.4')).toBe(0);
+		expect(main.constructor.compareVersions('1.1.3', '1.1.4')).toBe(-1);
 	});
 
 	test('Overwrite', () => {
@@ -319,7 +347,7 @@ function matrix(cb) {
 		endPointVolume: [ '', '50' ],
 		endTimeInclude: [ true, false ],
 		optionDense: [ false, true ],
-		optionDenseSnap: [ 16, 8 ],
+		optionDenseSnap: [ 16, 8, 4 ],
 		optionOffset: [ false, true ],
 		optionIgnoreVelocity: [ false, true ],
 		optionIgnoreVolume: [ false, true ],
@@ -370,7 +398,7 @@ function getFulfilledParameter() {
 		endPointVolume: '50',
 		endTimeInclude: true,
 		optionDense: false,
-		optionDenseSnap: 16,
+		optionDenseSnap: 4,
 		optionOffset: false,
 		optionIgnoreVelocity: false,
 		optionIgnoreVolume: false,

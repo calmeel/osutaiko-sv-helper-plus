@@ -209,32 +209,37 @@ class BeatmapManipulater {
 	}
 
 	getOverwriteTargetTime(time, options, isHitObject) {
-		if(isHitObject && options.isOffsetPrecise) {
-			const timingData = this.getDecimalTimingData(time);
+		if(!options.isOffset)
+			return time;
 
-			if(timingData.snap !== 12) {
-				const intervalTri = timingData.beatLength.div(3);
+		if(isHitObject)
+			return this.getInclusiveOffsetTime(time);
 
-				const prevHitObject = this.findPreviousHitObject(time);
-				const nextHitObject = this.findNextHitObject(time);
+		return this.getSnapBasedOffsetTime(time, -16);
+	}
 
-				const prevTimingData = prevHitObject !== null ? this.getDecimalTimingData(prevHitObject.time) : null;
-				const nextTimingData = nextHitObject !== null ? this.getDecimalTimingData(nextHitObject.time) : null;
+	getInclusiveOffsetTime(time) {
+		const timingData = this.getDecimalTimingData(time);
 
-				const isOddAdjacent = (prevTimingData !== null && prevTimingData.time.floor().toNumber() >= timingData.time.sub(intervalTri).floor().toNumber() && prevTimingData.snap === 12)
-								   || (nextTimingData !== null && nextTimingData.time.floor().toNumber() <= timingData.time.add(intervalTri).floor().toNumber() && nextTimingData.snap === 12);
+		if(timingData.snap !== 12) {
+			const intervalTri = timingData.beatLength.div(3);
 
-				if(isOddAdjacent) {
-					return this.getSnapBasedOffsetTime(time, -12);
-				}
+			const prevHitObject = this.findPreviousHitObject(time);
+			const nextHitObject = this.findNextHitObject(time);
 
-				return this.getSnapBasedOffsetTime(time, -16);
-			}
+			const prevTimingData = prevHitObject !== null ? this.getDecimalTimingData(prevHitObject.time) : null;
+			const nextTimingData = nextHitObject !== null ? this.getDecimalTimingData(nextHitObject.time) : null;
 
-			return this.getSnapBasedOffsetTime(time, -12);
+			const isOddAdjacent = (prevTimingData !== null && prevTimingData.time.floor().toNumber() >= timingData.time.sub(intervalTri).floor().toNumber() && prevTimingData.snap === 12)
+							   || (nextTimingData !== null && nextTimingData.time.floor().toNumber() <= timingData.time.add(intervalTri).floor().toNumber() && nextTimingData.snap === 12);
+
+			if(isOddAdjacent)
+				return this.getSnapBasedOffsetTime(time, -12);
+
+			return this.getSnapBasedOffsetTime(time, -16);
 		}
 
-		return options.isOffset ? this.getSnapBasedOffsetTime(time, -16) : time;
+		return this.getSnapBasedOffsetTime(time, -12);
 	}
 
 	getBarlineTimesInRange(startTime, endTime, includingStartTime=true, includingEndTime=true) {
@@ -271,7 +276,7 @@ class BeatmapManipulater {
 		const self = this.constructor;
 		
 		if(options.isOffset) {
-			startTime = this.getSnapBasedOffsetTime(startTime, options.isOffsetPrecise ? -12 : -16);
+			startTime = this.getSnapBasedOffsetTime(startTime, -16);
 			endTime = this.getSnapBasedOffsetTime(endTime, -16);
 		}
 
@@ -291,7 +296,7 @@ class BeatmapManipulater {
 
 	remove(startTime, endTime, options) {
 		if(options.isOffset) {
-			startTime = this.getSnapBasedOffsetTime(startTime, options.isOffsetPrecise ? -12 : -16);
+			startTime = this.getSnapBasedOffsetTime(startTime, -16);
 			endTime = this.getSnapBasedOffsetTime(endTime, -16);
 		}
 

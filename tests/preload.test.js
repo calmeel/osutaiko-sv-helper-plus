@@ -22,6 +22,8 @@ jest.mock('../src/env', () => ({
 
 let $wrap;
 let $closeButton;
+let $manualButton;
+let $languageSelect;
 let $startPointTime;
 let $startPointVelocity;
 let $startPointVolume;
@@ -31,9 +33,8 @@ let $endPointVelocity;
 let $endPointVolume;
 let $endTimeInclude;
 let $optionDense;
-let $optionDenseEighth;
+let $optionDenseSnap;
 let $optionOffset;
-let $optionOffsetPrecise;
 let $svMode;
 let $optionIgnoreVelocity;
 let $optionIgnoreVolume;
@@ -286,6 +287,31 @@ describe('Front-End Unit Test', () => {
 			expect(ipcRenderer.send).toHaveBeenLastCalledWith('main:close');
 		});
 
+		test('Manual Button', () => {
+			$manualButton.click();
+
+			expect(ipcRenderer.send).toHaveBeenLastCalledWith('main:manual', 'en');
+		});
+
+		test('Language Select', () => {
+			$languageSelect.value = 'ja';
+			$languageSelect.dispatchEvent(new Event('change'));
+
+			expect($manualButton.innerText).toBe('説明書');
+			expect($overwriteButton.innerText).toBe('上書き');
+			expect($modeToggler.dataset.label).toBe('詳細モード...');
+
+			$manualButton.click();
+
+			expect(ipcRenderer.send).toHaveBeenLastCalledWith('main:manual', 'ja');
+
+			Storage.instance = undefined;
+			expect(new Storage()._storage.language).toBe('ja');
+
+			$languageSelect.value = 'en';
+			$languageSelect.dispatchEvent(new Event('change'));
+		});
+
 		test('Mode Toggler', () => {
 			const initialMode = $wrap.classList.contains('mode-basic') ? 'basic' : 'advanced';
 			const reversedMode = initialMode === 'basic' ? 'advanced' : 'basic';
@@ -303,58 +329,47 @@ describe('Front-End Unit Test', () => {
 			expect($wrap.classList.contains('mode-' + initialMode)).toBe(true);
 		});
 
-		test('-1/16 Offset & -1/12 Inclusive', () => {
+		test('Offset Mode', () => {
 			$optionOffset.click();
 
 			expect($optionOffset.checked).toBe(true);
-			expect($optionOffsetPrecise.checked).toBe(false);
-
-			$optionOffsetPrecise.click();
-
-			expect($optionOffset.checked).toBe(true);
-			expect($optionOffsetPrecise.checked).toBe(true);
 
 			$optionOffset.click();
 
 			expect($optionOffset.checked).toBe(false);
-			expect($optionOffsetPrecise.checked).toBe(false);
-
-			$optionOffsetPrecise.click();
-
-			expect($optionOffset.checked).toBe(true);
-			expect($optionOffsetPrecise.checked).toBe(true);
-
-			$optionOffsetPrecise.click();
-
-			expect($optionOffset.checked).toBe(true);
-			expect($optionOffsetPrecise.checked).toBe(false);
 		});
 
-		test('Dense Mode & 1/8 Snap', () => {
+		test('Dense Mode & Snap Select', () => {
+			expect($optionDense.checked).toBe(false);
+			expect($optionDenseSnap.disabled).toBe(true);
+			expect($optionDenseSnap.value).toBe('16');
+
 			$optionDense.click();
 
 			expect($optionDense.checked).toBe(true);
-			expect($optionDenseEighth.checked).toBe(false);
+			expect($optionDenseSnap.disabled).toBe(false);
 
-			$optionDenseEighth.click();
+			$optionDenseSnap.value = '8';
+			$optionDenseSnap.dispatchEvent(new Event('change'));
 
 			expect($optionDense.checked).toBe(true);
-			expect($optionDenseEighth.checked).toBe(true);
+			expect($optionDenseSnap.value).toBe('8');
+
+			$optionDenseSnap.value = '4';
+			$optionDenseSnap.dispatchEvent(new Event('change'));
+
+			expect($optionDense.checked).toBe(true);
+			expect($optionDenseSnap.value).toBe('4');
 
 			$optionDense.click();
 
 			expect($optionDense.checked).toBe(false);
-			expect($optionDenseEighth.checked).toBe(false);
+			expect($optionDenseSnap.disabled).toBe(true);
 
-			$optionDenseEighth.click();
-
-			expect($optionDense.checked).toBe(true);
-			expect($optionDenseEighth.checked).toBe(true);
-
-			$optionDenseEighth.click();
+			$optionDenseSnap.dispatchEvent(new Event('change'));
 
 			expect($optionDense.checked).toBe(true);
-			expect($optionDenseEighth.checked).toBe(false);
+			expect($optionDenseSnap.disabled).toBe(false);
 		});
 
 		test('Keep Velocity', () => {
@@ -430,11 +445,11 @@ describe('Front-End Unit Test', () => {
 					optionDense: p.optionDense,
 					optionDenseSnap: p.optionDenseSnap,
 					optionOffset: p.optionOffset,
-					optionOffsetPrecise: p.optionOffsetPrecise,
 					svMode: p.svMode,
 					optionIgnoreVelocity: p.optionIgnoreVelocity,
 					optionIgnoreVolume: p.optionIgnoreVolume,
-					optionBackup: p.optionBackup
+					optionBackup: p.optionBackup,
+					language: 'en'
 				}));
 			});
 		});
@@ -453,11 +468,11 @@ describe('Front-End Unit Test', () => {
 					endPointVolume: p.endPointVolume,
 					endTimeInclude: p.endTimeInclude,
 					optionOffset: p.optionOffset,
-					optionOffsetPrecise: p.optionOffsetPrecise,
 					svMode: p.svMode,
 					optionIgnoreVelocity: p.optionIgnoreVelocity,
 					optionIgnoreVolume: p.optionIgnoreVolume,
-					optionBackup: p.optionBackup
+					optionBackup: p.optionBackup,
+					language: 'en'
 				}));
 			});
 		});
@@ -472,8 +487,8 @@ describe('Front-End Unit Test', () => {
 					endPointTime: p.endPointTime,
 					endTimeInclude: p.endTimeInclude,
 					optionOffset: p.optionOffset,
-					optionOffsetPrecise: p.optionOffsetPrecise,
-					optionBackup: p.optionBackup
+					optionBackup: p.optionBackup,
+					language: 'en'
 				}));
 			});
 		});
@@ -530,15 +545,7 @@ describe('Front-End Integrated Test', () => {
 		const $profileLoadButton = document.querySelector('.profile .profile-btn-load');
 
 		matrix((p) => {
-			if(!p.optionOffset) {
-				p.optionOffsetPrecise = false;
-			}
-
-			if(p.optionOffsetPrecise) {
-				p.optionOffset = true;
-			}
-
-			if(p.optionDenseSnap === 8) {
+			if(p.optionDenseSnap === 8 || p.optionDenseSnap === 4) {
 				p.optionDense = true;
 			}
 
@@ -568,9 +575,8 @@ describe('Front-End Integrated Test', () => {
 			expect($endPointVolume.value).toBe(p.endPointVolume);
 			expect($endTimeInclude.checked).toBe(p.endTimeInclude);
 			expect($optionDense.checked).toBe(p.optionDense);
-			expect($optionDenseEighth.checked).toBe(p.optionDenseSnap === 8);
+			expect($optionDenseSnap.value).toBe(String(p.optionDenseSnap));
 			expect($optionOffset.checked).toBe(p.optionOffset);
-			expect($optionOffsetPrecise.checked).toBe(p.optionOffsetPrecise);
 			expect($svMode.value).toBe(p.svMode);
 			expect($optionIgnoreVelocity.checked).toBe(p.optionIgnoreVelocity);
 			expect($optionIgnoreVolume.checked).toBe(p.optionIgnoreVolume);
@@ -588,6 +594,8 @@ function render() {
 
 	$wrap = document.querySelector('.wrap');
 	$closeButton = document.querySelector('.titlebar-close');
+	$manualButton = document.querySelector('.titlebar-manual');
+	$languageSelect = document.querySelector('.titlebar-language');
 	$startPointTime = document.getElementById('sp_time');
 	$startPointVelocity = document.getElementById('sp_velocity');
 	$startPointVolume = document.getElementById('sp_volume');
@@ -597,9 +605,8 @@ function render() {
 	$endPointVolume = document.getElementById('ep_volume');
 	$endTimeInclude = document.getElementById('ep_include');
 	$optionDense = document.getElementById('op_dense');
-	$optionDenseEighth = document.getElementById('op_dense_eighth');
+	$optionDenseSnap = document.getElementById('op_dense_snap');
 	$optionOffset = document.getElementById('op_offset');
-	$optionOffsetPrecise = document.getElementById('op_offset_precise');
 	$svMode = document.getElementById('op_sv_mode');
 	$optionIgnoreVelocity = document.getElementById('op_ignr_velocity');
 	$optionIgnoreVolume = document.getElementById('op_ignr_volume');
@@ -625,9 +632,8 @@ function matrix(cb) {
 		endPointVolume: [ '', [ () => $endPointVolume.value = '50', '50' ] ],
 		endTimeInclude: [ true, [ () => $endTimeInclude.checked = false, false ] ],
 		optionDense: [ false, [ () => $optionDense.checked = true, true ] ],
-		optionDenseSnap: [ 16, [ () => $optionDenseEighth.checked = true, 8 ] ],
+		optionDenseSnap: [ 16, [ () => { $optionDenseSnap.value = '8'; $optionDenseSnap.dispatchEvent(new Event('change')); }, 8 ], [ () => { $optionDenseSnap.value = '4'; $optionDenseSnap.dispatchEvent(new Event('change')); }, 4 ] ],
 		optionOffset: [ false, [ () => $optionOffset.checked = true, true ] ],
-		optionOffsetPrecise: [ false, [ () => $optionOffsetPrecise.checked = true, true ] ],
 		svMode: [ 'linear', [ () => $svMode.value = 'sineOut', 'sineOut' ] ],
 		optionIgnoreVelocity: [ false, [ () => $optionIgnoreVelocity.checked = true, true ] ],
 		optionIgnoreVolume: [ false, [ () => $optionIgnoreVolume.checked = true, true ] ],
@@ -667,9 +673,8 @@ function reset() {
 	$endPointVolume.value = '';
 	$endTimeInclude.checked = true;
 	$optionDense.checked = false;
-	$optionDenseEighth.checked = false;
+	$optionDenseSnap.value = '16';
 	$optionOffset.checked = false;
-	$optionOffsetPrecise.checked = false;
 	$svMode.value = 'linear';
 	$optionIgnoreVelocity.checked = false;
 	$optionIgnoreVolume.checked = false;

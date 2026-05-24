@@ -58,6 +58,30 @@ input::-webkit-input-placeholder {
 	-webkit-app-region: drag;
 			app-region: drag;
 }
+.titlebar-manual {
+	align-self: center;
+	margin: 0 4px 0 0;
+	padding: 0 7px;
+	height: 22px;
+	font-size: 10px;
+	background: transparent;
+	color: var(--color-primary);
+	cursor: pointer;
+}
+.titlebar-manual:hover {
+	color: var(--color-highlight);
+}
+.titlebar-language {
+	align-self: center;
+	margin: 0 6px 0 0;
+	padding: 0 4px;
+	width: 46px;
+	height: 22px;
+	font-size: 10px;
+	background: var(--color-darken);
+	color: var(--color-primary);
+	cursor: pointer;
+}
 .titlebar-close {
 	display: flex;
 	align-items: center;
@@ -78,6 +102,16 @@ input::-webkit-input-placeholder {
 
 .field {
 	margin: 0 0 18px;
+}
+.field-heading {
+	display: flex;
+	align-items: baseline;
+	gap: 8px;
+}
+.field-heading span {
+	font-size: 9px;
+	opacity: .75;
+	white-space: nowrap;
 }
 .field input {
 	display: block;
@@ -209,6 +243,12 @@ input::-webkit-input-placeholder {
 .checkbox-group .checkbox {
 	margin-right: 16px;
 }
+.checkbox select {
+	margin: 0 0 0 6px;
+	width: 104px;
+	height: 22px;
+	font-size: 10px;
+}
 .checkbox-mini {
 	margin: 0;
 	font-size: 9px;
@@ -230,7 +270,7 @@ input::-webkit-input-placeholder {
 	align-items: center;
 }
 .option-mode-row .option-backup {
-	margin-left: auto;
+	margin-left: 25px;
 	margin-right: 22px;
 }
 
@@ -329,11 +369,8 @@ input::-webkit-input-placeholder {
 	float: right;
 	cursor: pointer;
 }
-.mode-advanced .mode-toggler::before {
-	content: 'Basic Mode...';
-}
-.mode-basic .mode-toggler::before {
-	content: 'Advanced Mode...';
+.mode-toggler::before {
+	content: attr(data-label);
 }
 .mode-item-basic,
 .mode-item-advanced {
