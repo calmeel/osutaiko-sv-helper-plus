@@ -7,6 +7,11 @@ A fork of osu!taiko SV Helper with bug fixes and a few additional features.
 
 This version is based on the original osu!taiko SV Helper and includes fixes for issues found in the original tool, as well as small improvements for osu!taiko mapping workflows.
 
+## Download
+
+- English: Download the latest `.exe` from [Latest Release](https://github.com/calmeel/osutaiko-sv-helper-plus/releases/latest).
+- 日本語: 最新版の `.exe` は [最新リリース](https://github.com/calmeel/osutaiko-sv-helper-plus/releases/latest) からダウンロードできます。
+
 ## Manual
 
 - [English manual](https://calmeel.github.io/osutaiko-sv-helper-plus/)
