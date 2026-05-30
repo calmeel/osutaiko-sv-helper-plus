@@ -197,19 +197,21 @@
 		<section id="plus">
 			<h2>plusで追加した内容</h2>
 			<ul>
-				<li><code>修正</code> と <code>削除</code> は緑線のみを対象にします。赤線は変更されません。</li>
-				<li><code>上書き</code> は本当の上書きとして動作します。選択範囲内の緑線をすべて削除してから、新しい緑線を作成します。赤線は変更されません。</li>
-				<li>通常の上書きでは、SV・音量・effectsのいずれも変化しない緑線は追加しません。Dense モードでは意図的に緑線を密に配置します。</li>
-				<li>通常の上書きでは、小節線上にもSV線を作成します。小節線は赤線の <code>beatLength * meter</code> から計算し、最終的な時刻は小数点以下を切り捨てます。</li>
-				<li>Dense モードは <code>1/16 snap</code>、<code>1/8 snap</code>、<code>1/4 snap</code> に対応しています。</li>
-				<li><code>-1/16 Offset モード</code> には、1/12 snap が含まれる場合に周辺ノーツにも <code>-1/12 offset</code> を適用する処理が含まれます。それ以外のノーツと小節線は <code>-1/16 offset</code> を使います。</li>
-				<li>Kiai オプションを削除しました。上書きでは開始地点のKiai/effectsを継承し、修正では各緑線の元のeffectsを維持します。</li>
-				<li>SVと音量を個別に維持できる小さな <code>維持</code> チェックボックスを追加しました。</li>
+				<li><code>修正</code> と <code>削除</code> が赤線を緑線に変えてしまうバグを修正しました。</li>
+				<li><code>上書き</code> は本当の上書きとして動作するようになりました。選択範囲内の緑線をすべて削除してから、新しい緑線を作成します。</li>
+				<li>通常の上書きで、小節線上にも SV 線を作成するようになりました。小節線は赤線の <code>beatLength * meter</code> から計算し、最終的な時刻は小数点以下を切り捨てます。</li>
+				<li>Dense モードは <code>1/16 snap</code>に加え、<code>1/8 snap</code>、<code>1/4 snap</code> に対応するようになりました。</li>
+				<li><code>-1/16 Offset モード</code> に、1/12 included の機能をデフォルトで内蔵しました。1/12 snap が含まれる場合に周辺ノーツにも <code>-1/12 offset</code> を適用します。</li>
+				<li>1/12 included 機能は、1/12 included <code>± 1 ms</code> のノーツにも対応するようになりました。</li>
+				<li>Kiai オプションを削除しました。上書きでは開始地点の Kiai/effects を継承し、修正では各緑線の元の effects を維持します。</li>
+				<li>SV と音量を個別に維持できる小さな <code>維持</code> チェックボックスを追加しました。</li>
 				<li>音量の入力範囲を <code>5</code> から <code>100</code> に制限しました。</li>
-				<li><code>Finisher のみモード</code> を追加しました。上書き・修正の対象を big note / Finisher のSV線だけに限定し、変更されたFinisher列の後には復帰線を追加します。</li>
-				<li><code>SVモード</code> プルダウンを実装しました。デフォルトの挙動は <code>Linear / 等差</code> で、旧来の Exponential チェックボックスの挙動は <code>Cubic In / 加速カーブ</code> として選択できます。固定制御点のベジェモードとして <code>Bezier In-Out</code> と <code>Bezier Out-In</code> も選択できます。</li>
-				<li>選択範囲内でBPM変更をまたぐ場合、すべてのSVモードで生成SV値に自動BPM補正を適用します。</li>
-				<li>日本語と英語のUIに対応し、選択した言語は次回起動時にも維持されます。</li>
+				<li><code>Finisher のみモード</code> を追加しました。上書き・修正の対象を big note / Finisher の SV 線だけに限定し、変更された Finisher の後には戻し用の SV 線を追加します。</li>
+				<li>Finisher のみモードでは、SV・音量・effects のいずれも変化しない緑線は追加しません。</li>
+				<li><code>SVモード</code> プルダウンを実装しました。デフォルトの挙動は <code>Linear / 等差</code> で、旧来の Exponential チェックボックスの挙動は <code>Cubic In / 加速カーブ</code> として選択できます。
+					固定制御点のベジェモードとして <code>Bezier In-Out</code> と <code>Bezier Out-In</code> も追加しました。</li>
+				<li>選択範囲内で BPM 変更をまたぐ場合、すべての SV モードで生成 SV 値に自動 BPM 補正を適用するようになりました。</li>
+				<li>日本語と英語の UI に対応し、選択した言語は次回起動時にも維持されます。</li>
 				<li>アプリ上部に説明書リンクを追加しました。</li>
 				<li>GitHub Releases を最大24時間に1回確認し、新しいバージョンがある場合にお知らせします。</li>
 			</ul>

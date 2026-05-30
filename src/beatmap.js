@@ -165,21 +165,25 @@ class BeatmapManipulater {
 				timingPoint.effects = inheritedEffects;
 				timingPoint.time = overwriteTarget.time;
 
-				if(!this.isRedundantInheritedTimingPoint(timingPoint, overwriteTarget.baseTime))
-					timingPoints.push(timingPoint);
+				timingPoints.push(timingPoint);
 			}
 
 		}
 
-		const finisherOnlyTargetTimes = options.isFinisherOnly ? timingPoints.map(timingPoint => timingPoint.time) : [];
+		const generatedTimingPointTimes = timingPoints.map(timingPoint => timingPoint.time);
+		const deleteStartTime = (options.isOffset && !options.isFinisherOnly) ? this.getSnapBasedOffsetTime(startTime, -16) : startTime;
+		const deleteEndTime = (options.isOffset && !options.isFinisherOnly) ? this.getSnapBasedOffsetTime(endTime, -16) : endTime;
 		const existingTimingPoints = this.beatmap.timingPoints.filter(timingPoint => {
 			if(timingPoint.uninherited !== 0)
 				return true;
 
 			if(options.isFinisherOnly)
-				return !this.constructor.hasTimingPointAround(finisherOnlyTargetTimes, timingPoint.time, 1);
+				return !this.constructor.hasTimingPointAround(generatedTimingPointTimes, timingPoint.time, 1);
 
-			return !between(timingPoint.time, startTime, endTime, options.includingStartTime, options.includingEndTime);
+			if(options.isOffset && this.constructor.hasTimingPointAround(generatedTimingPointTimes, timingPoint.time, 1))
+				return false;
+
+			return !between(timingPoint.time, deleteStartTime, deleteEndTime, options.includingStartTime, options.includingEndTime);
 		});
 
 		this.beatmap.replaceTimingPoints(existingTimingPoints.concat(timingPoints).sort((a, b) => a.time - b.time));
@@ -248,8 +252,6 @@ class BeatmapManipulater {
 					lastFinisherBaseTime = event.baseTime;
 					return;
 				}
-				if(activeFinisherTimingPoint === null && this.isRedundantInheritedTimingPoint(timingPoint, event.baseTime))
-					return;
 
 				timingPoints.push(timingPoint);
 				activeFinisherTimingPoint = timingPoint;
@@ -558,7 +560,7 @@ class BeatmapManipulater {
 		while(indexDuoDeca.lt(time)) {
 			indexDuoDeca = indexDuoDeca.add(intervalDuoDeca);
 
-			if(indexDuoDeca.floor().toNumber() === time) {
+			if(this.constructor.isTimeWithinSnapThreshold(indexDuoDeca, time)) {
 				resultSnap = 12;
 				resultTime = indexDuoDeca;
 				break;
@@ -568,7 +570,7 @@ class BeatmapManipulater {
 		while(indexHexaDeca.lt(time)) {
 			indexHexaDeca = indexHexaDeca.add(intervalHexaDeca);
 
-			if(indexHexaDeca.floor().toNumber() === time) {
+			if(this.constructor.isTimeWithinSnapThreshold(indexHexaDeca, time)) {
 				resultSnap = 16;
 				resultTime = indexHexaDeca;
 				break;
@@ -580,6 +582,10 @@ class BeatmapManipulater {
 			time: resultTime ? resultTime : indexHexaDeca,
 			beatLength: Decimal(timingPoint.beatLength)
 		}
+	}
+
+	static isTimeWithinSnapThreshold(snapTime, time, threshold=1) {
+		return Math.abs(snapTime.floor().toNumber() - time) <= threshold;
 	}
 
 	getSnapBasedOffsetTime(time, snap) {

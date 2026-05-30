@@ -197,20 +197,21 @@
 		<section id="plus">
 			<h2>Changes Added in plus</h2>
 			<ul>
-				<li><code>Modify</code> and <code>Remove</code> now only affect inherited timing points, also known as green lines. Uninherited timing points, or red lines, are preserved.</li>
-				<li><code>Overwrite</code> is now a true overwrite. It removes all green lines inside the selected range before creating new ones. Red lines are preserved.</li>
-				<li>Normal Overwrite skips generated green lines that would not change SV, Volume, or effects. Dense Mode intentionally keeps placing dense green lines.</li>
-				<li>Normal Overwrite also creates SV points on barlines. Barline positions are calculated from red lines using <code>beatLength * meter</code>, and the final timestamp is floored.</li>
-				<li>Dense Mode supports <code>1/16 snap</code>, <code>1/8 snap</code>, and <code>1/4 snap</code>.</li>
-				<li><code>-1/16 Offset Mode</code> includes handling for 1/12 snap patterns: when 1/12 snap notes are present, nearby notes also use a <code>-1/12 offset</code>. Other hit objects and barlines use a <code>-1/16 offset</code>.</li>
-				<li>The Kiai option was removed. Overwrite inherits Kiai/effects from the start point. Modify keeps each timing point's original effects.</li>
-				<li>Velocity and Volume can be kept independently with small <code>Keep</code> checkboxes.</li>
-				<li>Volume input is limited to <code>5</code> through <code>100</code>.</li>
-				<li>Added <code>Finisher Only Mode</code>. Overwrite and Modify can affect only big-note/Finisher SV points, with restore points added after changed Finisher runs.</li>
-				<li>Added the <code>SV Mode</code> selector. The default behavior is <code>Linear</code>, and the old Exponential checkbox behavior is now available as <code>Cubic In / Accelerate Curve</code>. <code>Bezier In-Out</code> and <code>Bezier Out-In</code> are also available as fixed-control-point Bezier modes.</li>
-				<li>When the selected range crosses BPM changes, generated SV values are automatically BPM-compensated for all SV modes.</li>
-				<li>The app supports English and Japanese UI text, and the selected language is kept for the next launch.</li>
-				<li>The title bar includes a Manual link that opens this documentation.</li>
+				<li>Fixed a bug where <code>Modify</code> and <code>Delete</code> could turn red lines into green lines.</li>
+				<li><code>Overwrite</code> now works as a true overwrite. It removes all green lines in the selected range before creating new green lines.</li>
+				<li>Normal Overwrite now also creates SV lines on barlines. Barline positions are calculated from red lines using <code>beatLength * meter</code>, and the final timestamp is floored.</li>
+				<li>Dense Mode now supports <code>1/8 snap</code> and <code>1/4 snap</code> in addition to <code>1/16 snap</code>.</li>
+				<li><code>-1/16 Offset Mode</code> now includes the old 1/12 included behavior by default. When 1/12 snap notes are present, nearby notes also receive a <code>-1/12 offset</code>.</li>
+				<li>The 1/12 included behavior now also supports notes within <code>±1 ms</code> of 1/12 snap.</li>
+				<li>Removed the Kiai option. Overwrite inherits Kiai/effects from the start point, and Modify preserves each green line's original effects.</li>
+				<li>Added small <code>Keep</code> checkboxes to preserve SV and volume independently.</li>
+				<li>Volume input is now limited to values from <code>5</code> to <code>100</code>.</li>
+				<li>Added <code>Finisher Only Mode</code>. Overwrite and Modify can target only big-note / Finisher SV lines, and Overwrite adds a restore SV line after the changed Finisher.</li>
+				<li>In Finisher Only Mode, green lines are not added when SV, volume, and effects do not change.</li>
+				<li>Added the <code>SV Mode</code> dropdown. The default behavior is <code>Linear / Arithmetic</code>, and the old Exponential checkbox behavior is available as <code>Cubic In / Accelerate Curve</code>. Fixed-control-point Bezier modes, <code>Bezier In-Out</code> and <code>Bezier Out-In</code>, were also added.</li>
+				<li>When the selected range crosses BPM changes, generated SV values are now automatically BPM-compensated in all SV modes.</li>
+				<li>Added English and Japanese UI support, and the selected language is preserved for the next launch.</li>
+				<li>Added a manual link to the top of the app.</li>
 				<li>The app checks GitHub Releases at most once every 24 hours and shows a notice when a newer version is available.</li>
 			</ul>
 		</section>

@@ -317,6 +317,7 @@ describe('Beatmap Module Unit Test', () => {
 		test('Get Percise Timing Data', () => {
 			const firstTimingPoint = mockBeatmap.timingPoints[0];
 			const firstHitObject = mockBeatmap.hitObjects[0];
+			const tripletHitObject = mockBeatmap.hitObjects.find(hitObject => mockBeatmapManipulater.getDecimalTimingData(hitObject.time).snap === 12);
 
 			const invalidTimingData = mockBeatmapManipulater.getDecimalTimingData(firstTimingPoint.time - 1)
 			const artificialTimingData = mockBeatmapManipulater.getDecimalTimingData(firstHitObject.time + 1);
@@ -336,6 +337,9 @@ describe('Beatmap Module Unit Test', () => {
 				expect(timingData.time.floor().toNumber()).toBe(hitObject.time);
 				expect(timingData.beatLength.toNumber()).toBe(firstTimingPoint.beatLength);
 			}
+
+			expect(mockBeatmapManipulater.getDecimalTimingData(tripletHitObject.time - 1).snap).toBe(12);
+			expect(mockBeatmapManipulater.getDecimalTimingData(tripletHitObject.time + 1).snap).toBe(12);
 		});
 
 		test('Get Snap Based Offset Time', () => {
@@ -838,7 +842,7 @@ describe('Beatmap Module Unit Test', () => {
 			expect(compensatedTimingPoint.beatLength).toBeCloseTo(-50);
 		});
 
-		test('Overwrite Skips Redundant Inherited Timing Points Without Dense Mode', () => {
+		test('Overwrite Adds Redundant Inherited Timing Points Without Dense Mode', () => {
 			const startTime = mockBeatmap.hitObjects[0].time;
 			const endTime = mockBeatmap.hitObjects[1].time;
 
@@ -862,7 +866,7 @@ describe('Beatmap Module Unit Test', () => {
 			const redundantTimingPoints = modifiedBeatmap.timingPoints
 				.filter(timingPoint => timingPoint.uninherited === 0 && (timingPoint.time === startTime || timingPoint.time === endTime));
 
-			expect(redundantTimingPoints).toHaveLength(0);
+			expect(redundantTimingPoints.map(timingPoint => timingPoint.time)).toEqual([ startTime, endTime ]);
 		});
 
 		test('Overwrite Keeps Redundant Inherited Timing Points In Dense Mode', () => {
@@ -959,8 +963,120 @@ describe('Beatmap Module Unit Test', () => {
 			expect(inheritedTimingPointTimes).not.toContain(startTime);
 		});
 
+		test('Overwrite Removes Existing Offset Timing Point Before Adding Replacement', () => {
+			const startTime = mockBeatmap.hitObjects[0].time;
+			const endTime = mockBeatmap.hitObjects[1].time;
+			const offsetTime = mockBeatmapManipulater.getOverwriteTargetTime(startTime, {
+				isOffset: true
+			}, true);
+			const existingOffsetTimingPoint = new TimingPoint(offsetTime, -100, 4, 2, 0, 50, 0, 0);
+
+			mockBeatmap.replaceTimingPoints(mockBeatmap.timingPoints.concat([ existingOffsetTimingPoint ]).sort((a, b) => a.time - b.time));
+			mockBeatmap.write();
+			mockBeatmapManipulater = new BeatmapManipulater(mockBeatmapPath);
+
+			mockBeatmapManipulater.overwrite(startTime, endTime, {
+				startVelocity: 2,
+				startVolume: 60,
+				endVelocity: 2,
+				endVolume: 60,
+				includingStartTime: true,
+				includingEndTime: true,
+				isDense: false,
+				isOffset: true,
+				isOffsetPrecise: false,
+				svMode: 'linear',
+				isIgnoreVelocity: false,
+				isIgnoreVolume: false,
+				isBackup: false
+			});
+
+			const modifiedBeatmap = new Beatmap(mockBeatmapPath);
+			const offsetTimingPoints = modifiedBeatmap.timingPoints
+				.filter(timingPoint => timingPoint.uninherited === 0 && timingPoint.time === offsetTime);
+
+			expect(offsetTimingPoints).toHaveLength(1);
+			expect(offsetTimingPoints[0].beatLength).toBe(-50);
+			expect(offsetTimingPoints[0].volume).toBe(60);
+		});
+
+		test('Overwrite Preserves Excluded End Offset Timing Point', () => {
+			const startTime = mockBeatmap.hitObjects[0].time;
+			const endTime = mockBeatmap.hitObjects[1].time;
+			const endOffsetTime = mockBeatmapManipulater.getOverwriteTargetTime(endTime, {
+				isOffset: true
+			}, true);
+			const existingEndOffsetTimingPoint = new TimingPoint(endOffsetTime, -100, 4, 2, 0, 50, 0, 0);
+
+			mockBeatmap.replaceTimingPoints(mockBeatmap.timingPoints.concat([ existingEndOffsetTimingPoint ]).sort((a, b) => a.time - b.time));
+			mockBeatmap.write();
+			mockBeatmapManipulater = new BeatmapManipulater(mockBeatmapPath);
+
+			mockBeatmapManipulater.overwrite(startTime, endTime, {
+				startVelocity: 2,
+				startVolume: 60,
+				endVelocity: 2,
+				endVolume: 60,
+				includingStartTime: true,
+				includingEndTime: false,
+				isDense: false,
+				isOffset: true,
+				isOffsetPrecise: false,
+				svMode: 'linear',
+				isIgnoreVelocity: false,
+				isIgnoreVolume: false,
+				isBackup: false
+			});
+
+			const modifiedBeatmap = new Beatmap(mockBeatmapPath);
+			const endOffsetTimingPoints = modifiedBeatmap.timingPoints
+				.filter(timingPoint => timingPoint.uninherited === 0 && timingPoint.time === endOffsetTime);
+
+			expect(endOffsetTimingPoints).toHaveLength(1);
+			expect(endOffsetTimingPoints[0].beatLength).toBe(-100);
+			expect(endOffsetTimingPoints[0].volume).toBe(50);
+		});
+
 		test('Overwrite Automatically Uses 1/12 Offset For Triplet Hit Objects', () => {
 			const startTime = 1956;
+			const endTime = 2043;
+			const expectedTripletOffsetTime = mockBeatmapManipulater.getSnapBasedOffsetTime(startTime, -12);
+			const regularOffsetTime = mockBeatmapManipulater.getSnapBasedOffsetTime(startTime, -16);
+
+			mockBeatmapManipulater.overwrite(startTime, endTime, {
+				startVelocity: 1.0,
+				startVolume: 100,
+				endVelocity: 1.0,
+				endVolume: 100,
+				includingStartTime: true,
+				includingEndTime: false,
+				isDense: false,
+				isOffset: true,
+				isOffsetPrecise: false,
+				svMode: 'linear',
+				isIgnoreVelocity: false,
+				isIgnoreVolume: false,
+				isBackup: false
+			});
+
+			const modifiedBeatmap = new Beatmap(mockBeatmapPath);
+			const inheritedTimingPointTimes = modifiedBeatmap.timingPoints
+				.filter(timingPoint => timingPoint.uninherited === 0)
+				.map(timingPoint => timingPoint.time);
+
+			expect(inheritedTimingPointTimes).toContain(expectedTripletOffsetTime);
+			expect(inheritedTimingPointTimes).not.toContain(regularOffsetTime);
+		});
+
+		test('Overwrite Treats Triplet Hit Objects Within One Millisecond As 1/12 Snap', () => {
+			fs.writeFileSync(mockBeatmapPath, templateBeatmapRawString.replace(
+				'256,192,1956,1,0,0:0:0:0:',
+				'256,192,1957,1,0,0:0:0:0:'
+			));
+
+			mockBeatmapManipulater = new BeatmapManipulater(mockBeatmapPath);
+
+			const startTime = 1957;
 			const endTime = 2043;
 			const expectedTripletOffsetTime = mockBeatmapManipulater.getSnapBasedOffsetTime(startTime, -12);
 			const regularOffsetTime = mockBeatmapManipulater.getSnapBasedOffsetTime(startTime, -16);
