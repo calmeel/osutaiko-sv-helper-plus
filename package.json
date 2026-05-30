@@ -1,6 +1,6 @@
 {
   "name": "osutaiko-sv-helper",
-  "version": "2.0.0",
+  "version": "2.0.1",
   "description": "Simple utility for adjusting slider velocity on osu!taiko mapping",
   "main": "main.js",
   "author": "oL0",
